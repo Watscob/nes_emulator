@@ -11,7 +11,12 @@ void Cpu::run(std::vector<std::uint8_t> program)
 
         switch (code)
         {
-            // TODO
+        case 0x00: // BRK
+            return;
+        case 0xA9: // LDA (imm)
+            register_a_ = program.at(program_counter_++);
+            update_zero_and_negative(register_a_);
+            break;
         default:
             log_error("Code {:#04x} is not implemented.", code);
             break;
