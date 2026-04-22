@@ -9,24 +9,13 @@ project(
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(
-    nesemulator
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/cpu.cpp
-)
-
-target_include_directories(
-    nesemulator
-    PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-)
-
-target_compile_options(
-    nesemulator
-    PRIVATE
+add_compile_options(
     -Wall
     -Wextra
     -Werror
 )
+
+add_subdirectory(src)
+
+enable_testing()
+add_subdirectory(tests)
