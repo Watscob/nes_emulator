@@ -17,6 +17,10 @@ void Cpu::run(std::vector<std::uint8_t> program)
             register_a_ = program.at(program_counter_++);
             update_zero_and_negative(register_a_);
             break;
+        case 0xAA: // TAX
+            register_x_ = register_a_;
+            update_zero_and_negative(register_x_);
+            break;
         default:
             log_error("Code {:#04x} is not implemented.", code);
             break;
