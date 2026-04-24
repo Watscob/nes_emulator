@@ -34,6 +34,14 @@ void Cpu::run()
         {
         case 0x00: // BRK
             return;
+        case 0x85: // STA (zero page)
+            sta(AddressingMode::ZERO_PAGE);
+            program_counter_++;
+            break;
+        case 0x95: // STA (zero page x)
+            sta(AddressingMode::ZERO_PAGE_X);
+            program_counter_++;
+            break;
         case 0xA5: // LDA (zero page)
             lda(AddressingMode::ZERO_PAGE);
             program_counter_++;
@@ -123,6 +131,12 @@ void Cpu::lda(AddressingMode mode)
     std::uint16_t addr = get_operand_address(mode);
     register_a_ = memory_->read8(addr);
     update_zero_and_negative(register_a_);
+}
+
+void Cpu::sta(AddressingMode mode)
+{
+    std::uint16_t addr = get_operand_address(mode);
+    memory_->write8(addr, register_a_);
 }
 
 void Cpu::tax()

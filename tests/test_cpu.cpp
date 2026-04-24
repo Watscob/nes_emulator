@@ -49,6 +49,16 @@ TEST(CpuTest, lda_from_memory)
     ASSERT_EQ(cpu.register_a_, 0x55);
 }
 
+TEST(CpuTest, sta_to_memory)
+{
+    Cpu cpu;
+    std::vector<std::uint8_t> rom = {0xA9, 0x55, 0x85, 0x10, 0x00};
+
+    cpu.load_and_run(rom);
+
+    ASSERT_EQ(cpu.memory_->read8(0x10), 0x55);
+}
+
 TEST(CpuTest, tax_aa_move_a_to_x)
 {
     Cpu cpu;

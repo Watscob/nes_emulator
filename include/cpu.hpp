@@ -94,6 +94,7 @@ class Cpu
 
     void inx();
     void lda(AddressingMode mode);
+    void sta(AddressingMode mode);
     void tax();
 };
 
