@@ -11,6 +11,7 @@ class Cpu
   public:
     std::uint8_t register_a_;
     std::uint8_t register_x_;
+    std::uint8_t register_y_;
     std::uint8_t status_;
     std::uint16_t program_counter_;
     std::unique_ptr<Memory> memory_;
@@ -18,6 +19,7 @@ class Cpu
     Cpu()
         : register_a_(0u)
         , register_x_(0u)
+        , register_y_(0u)
         , status_(0u)
         , program_counter_(0u)
         , memory_(std::make_unique<Memory>())
