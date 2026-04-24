@@ -35,16 +35,14 @@ void Cpu::run()
         case 0x00: // BRK
             return;
         case 0xA9: // LDA (imm)
-            register_a_ = memory_->read8(program_counter_++);
-            update_zero_and_negative(register_a_);
+            lda(AddressingMode::IMMEDIATE);
+            program_counter_++;
             break;
         case 0xAA: // TAX
-            register_x_ = register_a_;
-            update_zero_and_negative(register_x_);
+            tax();
             break;
         case 0xE8: // INX
-            register_x_++;
-            update_zero_and_negative(register_x_);
+            inx();
             break;
         default:
             log_error("Code {:#04x} is not implemented.", code);
@@ -104,4 +102,23 @@ std::uint16_t Cpu::get_operand_address(AddressingMode mode)
         log_error("Mode {} is not supproted.", static_cast<int>(mode));
         return 0u;
     }
+}
+
+void Cpu::inx()
+{
+    register_x_++;
+    update_zero_and_negative(register_x_);
+}
+
+void Cpu::lda(AddressingMode mode)
+{
+    std::uint16_t addr = get_operand_address(mode);
+    register_a_ = memory_->read8(addr);
+    update_zero_and_negative(register_a_);
+}
+
+void Cpu::tax()
+{
+    register_x_ = register_a_;
+    update_zero_and_negative(register_x_);
 }
