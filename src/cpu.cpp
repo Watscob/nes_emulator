@@ -29,41 +29,52 @@ void Cpu::run()
     while (1)
     {
         std::uint8_t code = memory_->read8(program_counter_++);
+        OpCode opcode = OPCODES.at(code);
+
+        std::uint16_t program_counter_state = program_counter_;
 
         switch (code)
         {
-        case 0x00: // BRK
+        /* BRK */
+        case 0x00:
             return;
-        case 0x85: // STA (zero page)
-            sta(AddressingMode::ZERO_PAGE);
-            program_counter_++;
-            break;
-        case 0x95: // STA (zero page x)
-            sta(AddressingMode::ZERO_PAGE_X);
-            program_counter_++;
-            break;
-        case 0xA5: // LDA (zero page)
-            lda(AddressingMode::ZERO_PAGE);
-            program_counter_++;
-            break;
-        case 0xA9: // LDA (imm)
-            lda(AddressingMode::IMMEDIATE);
-            program_counter_++;
-            break;
-        case 0xAD: // LDA (absolute)
-            lda(AddressingMode::ABSOLUTE);
-            program_counter_ += 2;
-            break;
-        case 0xAA: // TAX
-            tax();
-            break;
-        case 0xE8: // INX
+        /* INX */
+        case 0xE8:
             inx();
             break;
+        /* LDA */
+        case 0xA1:
+        case 0xA5:
+        case 0xA9:
+        case 0xAD:
+        case 0xB1:
+        case 0xB5:
+        case 0xB9:
+        case 0xBD:
+            lda(opcode.mode);
+            break;
+        /* STA */
+        case 0x81:
+        case 0x85:
+        case 0x8D:
+        case 0x91:
+        case 0x95:
+        case 0x99:
+        case 0x9D:
+            sta(opcode.mode);
+            break;
+        /* TAX */
+        case 0xAA:
+            tax();
+            break;
+        /* UNKNOWN */
         default:
-            log_error("Code {:#04x} is not implemented.", code);
+            log_error("Code {} ({:#04x}) is not implemented.", opcode.name, code);
             break;
         }
+
+        if (program_counter_state == program_counter_)
+            program_counter_ += static_cast<std::uint16_t>(opcode.len - 1);
     }
 }
 

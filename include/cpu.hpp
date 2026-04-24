@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 #include "memory.hpp"
+#include "opcodes.hpp"
 
 class Cpu
 {
@@ -49,20 +50,6 @@ class Cpu
     static constexpr std::uint8_t FLAG_B = 0x10;
     static constexpr std::uint8_t FLAG_V = 0x40;
     static constexpr std::uint8_t FLAG_N = 0x80;
-
-    enum class AddressingMode
-    {
-        IMMEDIATE,
-        ZERO_PAGE,
-        ZERO_PAGE_X,
-        ZERO_PAGE_Y,
-        ABSOLUTE,
-        ABSOLUTE_X,
-        ABSOLUTE_Y,
-        INDIRECT_X,
-        INDIRECT_Y,
-        NONE
-    };
 
     template <std::uint8_t FLAG>
     void set_flag(bool set)
