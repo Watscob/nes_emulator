@@ -52,3 +52,56 @@ void Cpu::run()
         }
     }
 }
+
+std::uint16_t Cpu::get_operand_address(AddressingMode mode)
+{
+    switch (mode)
+    {
+    case AddressingMode::IMMEDIATE:
+        return program_counter_;
+    case AddressingMode::ZERO_PAGE:
+        return static_cast<std::uint16_t>(memory_->read8(program_counter_));
+    case AddressingMode::ABSOLUTE:
+        return memory_->read16(program_counter_);
+    case AddressingMode::ZERO_PAGE_X:
+    {
+        std::uint16_t addr = static_cast<std::uint16_t>(memory_->read8(program_counter_));
+        addr += static_cast<std::uint16_t>(register_x_);
+        return addr;
+    }
+    case AddressingMode::ZERO_PAGE_Y:
+    {
+        std::uint16_t addr = static_cast<std::uint16_t>(memory_->read8(program_counter_));
+        addr += static_cast<std::uint16_t>(register_y_);
+        return addr;
+    }
+    case AddressingMode::ABSOLUTE_X:
+    {
+        std::uint16_t addr = memory_->read16(program_counter_);
+        addr += static_cast<std::uint16_t>(register_x_);
+        return addr;
+    }
+    case AddressingMode::ABSOLUTE_Y:
+    {
+        std::uint16_t addr = memory_->read16(program_counter_);
+        addr += static_cast<std::uint16_t>(register_y_);
+        return addr;
+    }
+    case AddressingMode::INDIRECT_X:
+    {
+        std::uint8_t addr = memory_->read8(program_counter_);
+        addr += register_x_;
+        return memory_->read16(static_cast<std::uint16_t>(addr));
+    }
+    case AddressingMode::INDIRECT_Y:
+    {
+        std::uint16_t addr = static_cast<std::uint16_t>(memory_->read8(program_counter_));
+        std::uint16_t deref = memory_->read16(addr);
+        deref += static_cast<std::uint16_t>(register_y_);
+        return deref;
+    }
+    default:
+        log_error("Mode {} is not supproted.", static_cast<int>(mode));
+        return 0u;
+    }
+}

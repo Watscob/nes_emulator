@@ -50,6 +50,20 @@ class Cpu
     static constexpr std::uint8_t FLAG_V = 0x40;
     static constexpr std::uint8_t FLAG_N = 0x80;
 
+    enum class AddressingMode
+    {
+        IMMEDIATE,
+        ZERO_PAGE,
+        ZERO_PAGE_X,
+        ZERO_PAGE_Y,
+        ABSOLUTE,
+        ABSOLUTE_X,
+        ABSOLUTE_Y,
+        INDIRECT_X,
+        INDIRECT_Y,
+        NONE
+    };
+
     template <std::uint8_t FLAG>
     void set_flag(bool set)
     {
@@ -75,6 +89,8 @@ class Cpu
         set_zero(value == 0);
         set_negative(value & 0x80);
     }
+
+    std::uint16_t get_operand_address(AddressingMode mode);
 };
 
 #endif /* CPU_HPP */
