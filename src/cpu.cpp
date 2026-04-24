@@ -34,9 +34,17 @@ void Cpu::run()
         {
         case 0x00: // BRK
             return;
+        case 0xA5: // LDA (zero page)
+            lda(AddressingMode::ZERO_PAGE);
+            program_counter_++;
+            break;
         case 0xA9: // LDA (imm)
             lda(AddressingMode::IMMEDIATE);
             program_counter_++;
+            break;
+        case 0xAD: // LDA (absolute)
+            lda(AddressingMode::ABSOLUTE);
+            program_counter_ += 2;
             break;
         case 0xAA: // TAX
             tax();
