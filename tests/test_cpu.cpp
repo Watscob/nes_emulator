@@ -76,3 +76,27 @@ TEST(CpuTest, tax_aa_negative_flag)
     ASSERT_FALSE(cpu.get_zero());
     ASSERT_TRUE(cpu.get_negative());
 }
+
+TEST(CpuTest, inx_e8_increment_x)
+{
+    Cpu cpu;
+    std::vector<std::uint8_t> rom = {0xE8, 0x00};
+
+    cpu.run(rom);
+
+    ASSERT_EQ(cpu.register_x_, 0x01);
+    ASSERT_FALSE(cpu.get_zero());
+    ASSERT_FALSE(cpu.get_negative());
+}
+
+TEST(CpuTest, inx_e8_overflow_x)
+{
+    Cpu cpu;
+    std::vector<std::uint8_t> rom = {0xA9, 0xFF, 0xAA, 0xE8, 0x00};
+
+    cpu.run(rom);
+
+    ASSERT_EQ(cpu.register_x_, 0x00);
+    ASSERT_TRUE(cpu.get_zero());
+    ASSERT_FALSE(cpu.get_negative());
+}

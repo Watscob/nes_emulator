@@ -21,6 +21,10 @@ void Cpu::run(std::vector<std::uint8_t> program)
             register_x_ = register_a_;
             update_zero_and_negative(register_x_);
             break;
+        case 0xE8: // INX
+            register_x_++;
+            update_zero_and_negative(register_x_);
+            break;
         default:
             log_error("Code {:#04x} is not implemented.", code);
             break;
