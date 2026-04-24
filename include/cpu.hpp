@@ -28,6 +28,7 @@ class Cpu
 
     void load_and_run(std::vector<std::uint8_t> rom);
     void load(std::vector<std::uint8_t> rom);
+    void reset();
     void run();
 
     bool get_carry() { return get_flag<FLAG_C>(); }

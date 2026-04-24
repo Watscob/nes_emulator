@@ -4,13 +4,23 @@
 void Cpu::load_and_run(std::vector<std::uint8_t> rom)
 {
     load(rom);
+    reset();
     run();
 }
 
 void Cpu::load(std::vector<std::uint8_t> rom)
 {
     memory_->load(0x8000, rom);
-    program_counter_ = 0x8000;
+    memory_->write16(0xFFFC, 0x8000);
+}
+
+void Cpu::reset()
+{
+    register_a_ = 0u;
+    register_x_ = 0u;
+    status_ = 0u;
+
+    program_counter_ = memory_->read16(0xFFFC);
 }
 
 void Cpu::run()
