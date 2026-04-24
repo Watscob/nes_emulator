@@ -2,7 +2,9 @@
 #define CPU_HPP
 
 #include <cstdint>
+#include <memory>
 #include <vector>
+#include "memory.hpp"
 
 class Cpu
 {
@@ -11,18 +13,22 @@ class Cpu
     std::uint8_t register_x_;
     std::uint8_t status_;
     std::uint16_t program_counter_;
+    std::unique_ptr<Memory> memory_;
 
     Cpu()
         : register_a_(0u)
         , register_x_(0u)
         , status_(0u)
         , program_counter_(0u)
+        , memory_(std::make_unique<Memory>())
     {
     }
 
     ~Cpu() = default;
 
-    void run(std::vector<std::uint8_t> program);
+    void load_and_run(std::vector<std::uint8_t> rom);
+    void load(std::vector<std::uint8_t> rom);
+    void run();
 
     bool get_carry() { return get_flag<FLAG_C>(); }
     bool get_zero() { return get_flag<FLAG_Z>(); }
