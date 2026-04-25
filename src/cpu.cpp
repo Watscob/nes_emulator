@@ -49,6 +49,22 @@ void Cpu::run()
         case 0x3D:
             op_and(opcode.mode);
             break;
+        /* CLC */
+        case 0x18:
+            set_carry(0);
+            break;
+        /* CLD */
+        case 0xD8:
+            set_decimal(0);
+            break;
+        /* CLI */
+        case 0x58:
+            set_interrupt(0);
+            break;
+        /* CLV */
+        case 0xB8:
+            set_overflow(0);
+            break;
         /* INX */
         case 0xE8:
             op_inx();
