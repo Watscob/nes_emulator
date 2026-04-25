@@ -105,6 +105,9 @@ class Cpu
     void op_inc(AddressingMode mode);
     void op_inx();
     void op_iny();
+    void op_jmp_absolute();
+    void op_jmp_indirect();
+    void op_jsr();
     void op_lda(AddressingMode mode);
     void op_ldx(AddressingMode mode);
     void op_ldy(AddressingMode mode);

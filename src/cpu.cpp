@@ -200,6 +200,18 @@ void Cpu::run()
         case 0xC8:
             op_iny();
             break;
+        /* JMP absolute */
+        case 0x4C:
+            op_jmp_absolute();
+            break;
+        /* JMP indirect */
+        case 0x6C:
+            op_jmp_indirect();
+            break;
+        /* JSR */
+        case 0x20:
+            op_jsr();
+            break;
         /* LDA */
         case 0xA1:
         case 0xA5:
@@ -565,6 +577,33 @@ void Cpu::op_iny()
 {
     register_y_++;
     update_zero_and_negative(register_y_);
+}
+
+void Cpu::op_jmp_absolute()
+{
+    program_counter_ = memory_->read16(program_counter_);
+}
+
+void Cpu::op_jmp_indirect()
+{
+    std::uint16_t addr = memory_->read16(program_counter_);
+
+    if ((addr & 0x00FF) == 0x00FF)
+    {
+        std::uint16_t lo = static_cast<std::uint16_t>(memory_->read8(addr));
+        std::uint16_t hi = static_cast<std::uint16_t>(memory_->read8(addr & 0xFF00));
+        program_counter_ = (hi << 8) | lo;
+    }
+    else
+    {
+        program_counter_ = memory_->read16(addr);
+    }
+}
+
+void Cpu::op_jsr()
+{
+    stack_push16(program_counter_ + 2 - 1);
+    program_counter_ = memory_->read16(program_counter_);
 }
 
 void Cpu::op_lda(AddressingMode mode)
