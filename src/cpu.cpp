@@ -214,6 +214,18 @@ void Cpu::run()
         case 0x7E:
             op_ror(opcode.mode);
             break;
+        /* SEC */
+        case 0x38:
+            set_carry(1);
+            break;
+        /* SED */
+        case 0xF8:
+            set_decimal(1);
+            break;
+        /* SEI */
+        case 0x78:
+            set_interrupt(1);
+            break;
         /* STA */
         case 0x81:
         case 0x85:
