@@ -196,7 +196,7 @@ constexpr std::array<OpCode, 0x100> OPCODES = {{
     /* 0xA5 */ {"LDA", 2, 3, AddressingMode::ZERO_PAGE},
     /* 0xA6 */ {"LDX", 2, 3, AddressingMode::ZERO_PAGE},
     /* 0xA7 */ {"   ", 0, 0, AddressingMode::NONE},
-    /* 0xA8 */ {"   ", 0, 0, AddressingMode::NONE},
+    /* 0xA8 */ {"TAY", 1, 2, AddressingMode::NONE},
     /* 0xA9 */ {"LDA", 2, 2, AddressingMode::IMMEDIATE},
     /* 0xAA */ {"TAX", 1, 2, AddressingMode::NONE},
     /* 0xAB */ {"   ", 0, 0, AddressingMode::NONE},

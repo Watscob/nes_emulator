@@ -252,6 +252,10 @@ void Cpu::run()
         case 0xAA:
             op_tax();
             break;
+        /* TAY */
+        case 0xA8:
+            op_tay();
+            break;
         /* UNKNOWN */
         default:
             log_error("Code {} ({:#04x}) is not implemented.", opcode.name, code);
@@ -498,4 +502,10 @@ void Cpu::op_tax()
 {
     register_x_ = register_a_;
     update_zero_and_negative(register_x_);
+}
+
+void Cpu::op_tay()
+{
+    register_y_ = register_a_;
+    update_zero_and_negative(register_y_);
 }
