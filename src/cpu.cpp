@@ -125,9 +125,20 @@ void Cpu::run()
         case 0x5D:
             op_eor(opcode.mode);
             break;
+        /* INC */
+        case 0xE6:
+        case 0xEE:
+        case 0xF6:
+        case 0xFE:
+            op_inc(opcode.mode);
+            break;
         /* INX */
         case 0xE8:
             op_inx();
+            break;
+        /* INY */
+        case 0xC8:
+            op_iny();
             break;
         /* LDA */
         case 0xA1:
@@ -262,10 +273,25 @@ void Cpu::op_eor(AddressingMode mode)
     update_zero_and_negative(register_a_);
 }
 
+void Cpu::op_inc(AddressingMode mode)
+{
+    std::uint16_t addr = get_operand_address(mode);
+    std::uint8_t value = memory_->read8(addr);
+    value++;
+    memory_->write8(addr, value);
+    update_zero_and_negative(value);
+}
+
 void Cpu::op_inx()
 {
     register_x_++;
     update_zero_and_negative(register_x_);
+}
+
+void Cpu::op_iny()
+{
+    register_y_++;
+    update_zero_and_negative(register_y_);
 }
 
 void Cpu::op_lda(AddressingMode mode)
