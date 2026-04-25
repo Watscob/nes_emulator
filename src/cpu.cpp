@@ -193,6 +193,22 @@ void Cpu::run()
         case 0x1D:
             op_ora(opcode.mode);
             break;
+        /* PHA */
+        case 0x48:
+            stack_push8(register_a_);
+            break;
+        /* PHP */
+        case 0x08:
+            op_php();
+            break;
+        /* PLA */
+        case 0x68:
+            op_pla();
+            break;
+        /* PLP */
+        case 0x28:
+            op_plp();
+            break;
         /* ROL accumulator */
         case 0x2A:
             op_rol_accumulator();
@@ -257,9 +273,17 @@ void Cpu::run()
         case 0xA8:
             op_tay();
             break;
+        /* TSX */
+        case 0xBA:
+            op_tsx();
+            break;
         /* TXA */
         case 0x8A:
             op_txa();
+            break;
+        /* TXS */
+        case 0x9A:
+            op_txs();
             break;
         /* TYA */
         case 0x98:
@@ -464,6 +488,24 @@ void Cpu::op_ora(AddressingMode mode)
     update_zero_and_negative(register_a_);
 }
 
+void Cpu::op_php()
+{
+    set_break(1);
+    stack_push8(status_);
+}
+
+void Cpu::op_pla()
+{
+    register_a_ = stack_pop8();
+    update_zero_and_negative(register_a_);
+}
+
+void Cpu::op_plp()
+{
+    status_ = stack_pop8();
+    set_break(0);
+}
+
 void Cpu::op_rol_accumulator()
 {
     std::uint8_t value = register_a_;
@@ -544,10 +586,21 @@ void Cpu::op_tay()
     update_zero_and_negative(register_y_);
 }
 
+void Cpu::op_tsx()
+{
+    register_x_ = stack_pointer_;
+    update_zero_and_negative(register_x_);
+}
+
 void Cpu::op_txa()
 {
     register_a_ = register_x_;
     update_zero_and_negative(register_a_);
+}
+
+void Cpu::op_txs()
+{
+    stack_pointer_ = register_x_;
 }
 
 void Cpu::op_tya()
