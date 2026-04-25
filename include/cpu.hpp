@@ -84,6 +84,7 @@ class Cpu
     void op_dec(AddressingMode mode);
     void op_dex();
     void op_dey();
+    void op_eor(AddressingMode mode);
     void op_inx();
     void op_lda(AddressingMode mode);
     void op_sta(AddressingMode mode);

@@ -114,6 +114,17 @@ void Cpu::run()
         case 0x88:
             op_dey();
             break;
+        /* EOR */
+        case 0x41:
+        case 0x45:
+        case 0x49:
+        case 0x4D:
+        case 0x51:
+        case 0x55:
+        case 0x59:
+        case 0x5D:
+            op_eor(opcode.mode);
+            break;
         /* INX */
         case 0xE8:
             op_inx();
@@ -242,6 +253,13 @@ void Cpu::op_dey()
 {
     register_y_--;
     update_zero_and_negative(register_y_);
+}
+
+void Cpu::op_eor(AddressingMode mode)
+{
+    std::uint16_t addr = get_operand_address(mode);
+    register_a_ ^= memory_->read8(addr);
+    update_zero_and_negative(register_a_);
 }
 
 void Cpu::op_inx()
