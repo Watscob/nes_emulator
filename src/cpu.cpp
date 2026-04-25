@@ -20,7 +20,7 @@ void Cpu::reset()
     register_a_ = 0u;
     register_x_ = 0u;
     register_y_ = 0u;
-    status_ = 0u;
+    status_ = 0x24;
 
     program_counter_ = memory_->read16(0xFFFC);
 }

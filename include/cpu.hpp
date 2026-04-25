@@ -21,8 +21,8 @@ class Cpu
         : register_a_(0u)
         , register_x_(0u)
         , register_y_(0u)
-        , status_(0u)
-        , program_counter_(0u)
+        , status_(0x24)
+        , program_counter_(0x8000)
         , memory_(std::make_unique<Memory>())
     {
     }
