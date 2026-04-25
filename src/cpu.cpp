@@ -178,6 +178,9 @@ void Cpu::run()
         case 0x5E:
             op_lsr(opcode.mode);
             break;
+        /* NOP */
+        case 0xEA:
+            break;
         /* STA */
         case 0x81:
         case 0x85:
