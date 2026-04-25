@@ -65,6 +65,29 @@ void Cpu::run()
         case 0xB8:
             set_overflow(0);
             break;
+        /* CMP */
+        case 0xC1:
+        case 0xC5:
+        case 0xC9:
+        case 0xCD:
+        case 0xD1:
+        case 0xD5:
+        case 0xD9:
+        case 0xDD:
+            op_cmp(opcode.mode, register_a_);
+            break;
+        /* CPX */
+        case 0xE0:
+        case 0xE4:
+        case 0xEC:
+            op_cmp(opcode.mode, register_x_);
+            break;
+        /* CPY */
+        case 0xC0:
+        case 0xC4:
+        case 0xCC:
+            op_cmp(opcode.mode, register_y_);
+            break;
         /* INX */
         case 0xE8:
             op_inx();
@@ -163,6 +186,15 @@ void Cpu::op_and(AddressingMode mode)
     std::uint16_t addr = get_operand_address(mode);
     register_a_ &= memory_->read8(addr);
     update_zero_and_negative(register_a_);
+}
+
+void Cpu::op_cmp(AddressingMode mode, std::uint8_t compare_with)
+{
+    std::uint16_t addr = get_operand_address(mode);
+    std::uint8_t value = memory_->read8(addr);
+
+    set_carry(compare_with >= value);
+    update_zero_and_negative(compare_with - value);
 }
 
 void Cpu::op_inx()

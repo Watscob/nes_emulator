@@ -80,6 +80,7 @@ class Cpu
     std::uint16_t get_operand_address(AddressingMode mode);
 
     void op_and(AddressingMode mode);
+    void op_cmp(AddressingMode mode, std::uint8_t compare_with);
     void op_inx();
     void op_lda(AddressingMode mode);
     void op_sta(AddressingMode mode);
