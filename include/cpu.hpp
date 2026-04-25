@@ -15,6 +15,7 @@ class Cpu
     std::uint8_t register_y_;
     std::uint8_t status_;
     std::uint16_t program_counter_;
+    std::uint8_t stack_pointer_;
     std::unique_ptr<Memory> memory_;
 
     Cpu()
@@ -23,6 +24,7 @@ class Cpu
         , register_y_(0u)
         , status_(0x24)
         , program_counter_(0x8000)
+        , stack_pointer_(STACK_RESET)
         , memory_(std::make_unique<Memory>())
     {
     }
@@ -43,6 +45,9 @@ class Cpu
     bool get_negative() { return get_flag<FLAG_N>(); }
 
   private:
+    static constexpr std::uint16_t STACK = 0x0100;
+    static constexpr std::uint8_t STACK_RESET = 0xFD;
+
     static constexpr std::uint8_t FLAG_C = 0x01;
     static constexpr std::uint8_t FLAG_Z = 0x02;
     static constexpr std::uint8_t FLAG_I = 0x04;
@@ -78,6 +83,11 @@ class Cpu
     }
 
     std::uint16_t get_operand_address(AddressingMode mode);
+
+    void stack_push8(std::uint8_t data);
+    std::uint8_t stack_pop8();
+    void stack_push16(std::uint16_t data);
+    std::uint16_t stack_pop16();
 
     void op_and(AddressingMode mode);
     void op_cmp(AddressingMode mode, std::uint8_t compare_with);

@@ -21,6 +21,7 @@ void Cpu::reset()
     register_x_ = 0u;
     register_y_ = 0u;
     status_ = 0x24;
+    stack_pointer_ = STACK_RESET;
 
     program_counter_ = memory_->read16(0xFFFC);
 }
@@ -326,6 +327,31 @@ std::uint16_t Cpu::get_operand_address(AddressingMode mode)
         log_error("Mode {} is not supproted.", static_cast<int>(mode));
         return 0u;
     }
+}
+
+void Cpu::stack_push8(std::uint8_t data)
+{
+    memory_->write8(STACK + static_cast<std::uint16_t>(stack_pointer_), data);
+    stack_pointer_--;
+}
+
+std::uint8_t Cpu::stack_pop8()
+{
+    stack_pointer_++;
+    return memory_->read8(STACK + static_cast<std::uint16_t>(stack_pointer_));
+}
+
+void Cpu::stack_push16(std::uint16_t data)
+{
+    stack_push8(static_cast<std::uint8_t>(data >> 8));
+    stack_push8(static_cast<std::uint8_t>(data & 0xFF));
+}
+
+std::uint16_t Cpu::stack_pop16()
+{
+    std::uint16_t lo = static_cast<std::uint16_t>(stack_pop8());
+    std::uint16_t hi = static_cast<std::uint16_t>(stack_pop8());
+    return (hi << 8) | lo;
 }
 
 void Cpu::op_and(AddressingMode mode)
