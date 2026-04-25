@@ -167,6 +167,17 @@ void Cpu::run()
         case 0xBC:
             op_ldy(opcode.mode);
             break;
+        /* LSR accumulator */
+        case 0x4A:
+            op_lsr_accumulator();
+            break;
+        /* LSR */
+        case 0x46:
+        case 0x4E:
+        case 0x56:
+        case 0x5E:
+            op_lsr(opcode.mode);
+            break;
         /* STA */
         case 0x81:
         case 0x85:
@@ -329,6 +340,23 @@ void Cpu::op_ldy(AddressingMode mode)
     std::uint16_t addr = get_operand_address(mode);
     register_y_ = memory_->read8(addr);
     update_zero_and_negative(register_y_);
+}
+
+void Cpu::op_lsr_accumulator()
+{
+    set_carry(register_a_ & 0x1);
+    register_a_ >>= 1;
+    update_zero_and_negative(register_a_);
+}
+
+void Cpu::op_lsr(AddressingMode mode)
+{
+    std::uint16_t addr = get_operand_address(mode);
+    std::uint8_t value = memory_->read8(addr);
+    set_carry(value & 0x1);
+    value >>= 1;
+    memory_->write8(addr, value);
+    update_zero_and_negative(value);
 }
 
 void Cpu::op_sta(AddressingMode mode)

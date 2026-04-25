@@ -91,6 +91,8 @@ class Cpu
     void op_lda(AddressingMode mode);
     void op_ldx(AddressingMode mode);
     void op_ldy(AddressingMode mode);
+    void op_lsr_accumulator();
+    void op_lsr(AddressingMode mode);
     void op_sta(AddressingMode mode);
     void op_tax();
 };
