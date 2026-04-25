@@ -104,6 +104,7 @@ class Cpu
     void op_tax();
     void op_tay();
     void op_txa();
+    void op_tya();
 };
 
 #endif /* CPU_HPP */

@@ -180,7 +180,7 @@ constexpr std::array<OpCode, 0x100> OPCODES = {{
     /* 0x95 */ {"STA", 2, 4, AddressingMode::ZERO_PAGE_X},
     /* 0x96 */ {"STX", 2, 4, AddressingMode::ZERO_PAGE_Y},
     /* 0x97 */ {"   ", 0, 0, AddressingMode::NONE},
-    /* 0x98 */ {"   ", 0, 0, AddressingMode::NONE},
+    /* 0x98 */ {"TYA", 1, 2, AddressingMode::NONE},
     /* 0x99 */ {"STA", 3, 5, AddressingMode::ABSOLUTE_Y},
     /* 0x9A */ {"   ", 0, 0, AddressingMode::NONE},
     /* 0x9B */ {"   ", 0, 0, AddressingMode::NONE},

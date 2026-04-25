@@ -260,6 +260,10 @@ void Cpu::run()
         case 0x8A:
             op_txa();
             break;
+        /* TYA */
+        case 0x98:
+            op_tya();
+            break;
         /* UNKNOWN */
         default:
             log_error("Code {} ({:#04x}) is not implemented.", opcode.name, code);
@@ -517,5 +521,11 @@ void Cpu::op_tay()
 void Cpu::op_txa()
 {
     register_a_ = register_x_;
+    update_zero_and_negative(register_a_);
+}
+
+void Cpu::op_tya()
+{
+    register_a_ = register_y_;
     update_zero_and_negative(register_a_);
 }
