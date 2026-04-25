@@ -50,6 +50,17 @@ void Cpu::run()
         /* BRK */
         case 0x00:
             return;
+        /* ADC */
+        case 0x61:
+        case 0x65:
+        case 0x69:
+        case 0x6D:
+        case 0x71:
+        case 0x75:
+        case 0x79:
+        case 0x7D:
+            op_adc(opcode.mode);
+            break;
         /* AND */
         case 0x21:
         case 0x25:
@@ -242,6 +253,17 @@ void Cpu::run()
         case 0x7E:
             op_ror(opcode.mode);
             break;
+        /* SBC */
+        case 0xE1:
+        case 0xE5:
+        case 0xE9:
+        case 0xED:
+        case 0xF1:
+        case 0xF5:
+        case 0xF9:
+        case 0xFD:
+            op_sbc(opcode.mode);
+            break;
         /* SEC */
         case 0x38:
             set_carry(1);
@@ -387,6 +409,25 @@ std::uint16_t Cpu::stack_pop16()
     std::uint16_t lo = static_cast<std::uint16_t>(stack_pop8());
     std::uint16_t hi = static_cast<std::uint16_t>(stack_pop8());
     return (hi << 8) | lo;
+}
+
+void Cpu::add_to_register_a(std::uint8_t value)
+{
+    std::uint16_t sum = static_cast<std::uint16_t>(register_a_);
+    sum += static_cast<std::uint16_t>(value);
+    sum += static_cast<std::uint16_t>(get_carry());
+    set_carry(sum > 0xFF);
+    std::uint8_t result = static_cast<std::uint8_t>(sum);
+    set_overflow(((value ^ result) & (result ^ register_a_) & 0x80));
+    register_a_ = result;
+    update_zero_and_negative(register_a_);
+}
+
+void Cpu::op_adc(AddressingMode mode)
+{
+    std::uint16_t addr = get_operand_address(mode);
+    std::uint8_t value = memory_->read8(addr);
+    add_to_register_a(value);
 }
 
 void Cpu::op_and(AddressingMode mode)
@@ -577,6 +618,13 @@ void Cpu::op_ror(AddressingMode mode)
         value |= 0x80;
     memory_->write8(addr, value);
     update_zero_and_negative(value);
+}
+
+void Cpu::op_sbc(AddressingMode mode)
+{
+    std::uint16_t addr = get_operand_address(mode);
+    std::uint8_t value = memory_->read8(addr);
+    add_to_register_a(~value);
 }
 
 void Cpu::op_sta(AddressingMode mode)

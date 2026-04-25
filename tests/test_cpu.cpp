@@ -121,3 +121,75 @@ TEST(CpuTest, inx_e8_overflow_x)
     ASSERT_TRUE(cpu.get_zero());
     ASSERT_FALSE(cpu.get_negative());
 }
+
+TEST(CpuTest, adc_add)
+{
+    Cpu cpu;
+    std::vector<std::uint8_t> rom = {0xA9, 0x10, 0x69, 0x05, 0x00};
+
+    cpu.load_and_run(rom);
+
+    ASSERT_EQ(cpu.register_a_, 0x15);
+    ASSERT_FALSE(cpu.get_carry());
+    ASSERT_FALSE(cpu.get_overflow());
+}
+
+TEST(CpuTest, adc_add_overflow)
+{
+    Cpu cpu;
+    std::vector<std::uint8_t> rom = {0xA9, 0xFC, 0x69, 0x05, 0x00};
+
+    cpu.load_and_run(rom);
+
+    ASSERT_EQ(cpu.register_a_, 0x01);
+    ASSERT_TRUE(cpu.get_carry());
+    ASSERT_FALSE(cpu.get_overflow());
+}
+
+TEST(CpuTest, sbc_substract_no_borrow)
+{
+    Cpu cpu;
+    std::vector<std::uint8_t> rom = {0xA9, 0x10, 0x38, 0xE9, 0x05, 0x00};
+
+    cpu.load_and_run(rom);
+
+    ASSERT_EQ(cpu.register_a_, 0x0B);
+    ASSERT_TRUE(cpu.get_carry());
+    ASSERT_FALSE(cpu.get_overflow());
+}
+
+TEST(CpuTest, sbc_substract_borrow)
+{
+    Cpu cpu;
+    std::vector<std::uint8_t> rom = {0xA9, 0x05, 0xE9, 0x10, 0x00};
+
+    cpu.load_and_run(rom);
+
+    ASSERT_EQ(cpu.register_a_, 0xF4);
+    ASSERT_FALSE(cpu.get_carry());
+    ASSERT_FALSE(cpu.get_overflow());
+}
+
+TEST(CpuTest, sbc_overflow)
+{
+    Cpu cpu;
+    std::vector<std::uint8_t> rom = {0xA9, 0x80, 0x38, 0xE9, 0x01, 0x00};
+
+    cpu.load_and_run(rom);
+
+    ASSERT_EQ(cpu.register_a_, 0x7F);
+    ASSERT_TRUE(cpu.get_carry());
+    ASSERT_TRUE(cpu.get_overflow());
+}
+
+TEST(CpuTest, sbc_substract_zero)
+{
+    Cpu cpu;
+    std::vector<std::uint8_t> rom = {0xA9, 0x00, 0xE9, 0x00, 0x00};
+
+    cpu.load_and_run(rom);
+
+    ASSERT_EQ(cpu.register_a_, 0xFF);
+    ASSERT_FALSE(cpu.get_carry());
+    ASSERT_FALSE(cpu.get_overflow());
+}
