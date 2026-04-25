@@ -38,6 +38,17 @@ void Cpu::run()
         /* BRK */
         case 0x00:
             return;
+        /* AND */
+        case 0x21:
+        case 0x25:
+        case 0x29:
+        case 0x2D:
+        case 0x31:
+        case 0x35:
+        case 0x39:
+        case 0x3D:
+            op_and(opcode.mode);
+            break;
         /* INX */
         case 0xE8:
             op_inx();
@@ -129,6 +140,13 @@ std::uint16_t Cpu::get_operand_address(AddressingMode mode)
         log_error("Mode {} is not supproted.", static_cast<int>(mode));
         return 0u;
     }
+}
+
+void Cpu::op_and(AddressingMode mode)
+{
+    std::uint16_t addr = get_operand_address(mode);
+    register_a_ &= memory_->read8(addr);
+    update_zero_and_negative(register_a_);
 }
 
 void Cpu::op_inx()
