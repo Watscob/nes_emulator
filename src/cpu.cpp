@@ -181,6 +181,17 @@ void Cpu::run()
         /* NOP */
         case 0xEA:
             break;
+        /* ORA */
+        case 0x01:
+        case 0x05:
+        case 0x09:
+        case 0x0D:
+        case 0x11:
+        case 0x15:
+        case 0x19:
+        case 0x1D:
+            op_ora(opcode.mode);
+            break;
         /* STA */
         case 0x81:
         case 0x85:
@@ -360,6 +371,13 @@ void Cpu::op_lsr(AddressingMode mode)
     value >>= 1;
     memory_->write8(addr, value);
     update_zero_and_negative(value);
+}
+
+void Cpu::op_ora(AddressingMode mode)
+{
+    std::uint16_t addr = get_operand_address(mode);
+    register_a_ |= memory_->read8(addr);
+    update_zero_and_negative(register_a_);
 }
 
 void Cpu::op_sta(AddressingMode mode)
