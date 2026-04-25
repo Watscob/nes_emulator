@@ -151,6 +151,22 @@ void Cpu::run()
         case 0xBD:
             op_lda(opcode.mode);
             break;
+        /* LDX */
+        case 0xA2:
+        case 0xA6:
+        case 0xAE:
+        case 0xB6:
+        case 0xBE:
+            op_ldx(opcode.mode);
+            break;
+        /* LDY */
+        case 0xA0:
+        case 0xA4:
+        case 0xAC:
+        case 0xB4:
+        case 0xBC:
+            op_ldy(opcode.mode);
+            break;
         /* STA */
         case 0x81:
         case 0x85:
@@ -299,6 +315,20 @@ void Cpu::op_lda(AddressingMode mode)
     std::uint16_t addr = get_operand_address(mode);
     register_a_ = memory_->read8(addr);
     update_zero_and_negative(register_a_);
+}
+
+void Cpu::op_ldx(AddressingMode mode)
+{
+    std::uint16_t addr = get_operand_address(mode);
+    register_x_ = memory_->read8(addr);
+    update_zero_and_negative(register_x_);
+}
+
+void Cpu::op_ldy(AddressingMode mode)
+{
+    std::uint16_t addr = get_operand_address(mode);
+    register_y_ = memory_->read8(addr);
+    update_zero_and_negative(register_y_);
 }
 
 void Cpu::op_sta(AddressingMode mode)

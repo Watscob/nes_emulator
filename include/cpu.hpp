@@ -89,6 +89,8 @@ class Cpu
     void op_inx();
     void op_iny();
     void op_lda(AddressingMode mode);
+    void op_ldx(AddressingMode mode);
+    void op_ldy(AddressingMode mode);
     void op_sta(AddressingMode mode);
     void op_tax();
 };
