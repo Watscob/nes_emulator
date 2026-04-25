@@ -1,14 +1,30 @@
 #include "memory.hpp"
+#include <stdexcept>
 #include "log.hpp"
 
 std::uint8_t Memory::read8(std::uint16_t addr)
 {
-    return memory_.at(addr);
+    try
+    {
+        return memory_.at(addr);
+    }
+    catch (const std::out_of_range&)
+    {
+        log_error("Ignoring memory read access at {:#06x}.", addr);
+        return 0u;
+    }
 }
 
 void Memory::write8(std::uint16_t addr, std::uint8_t value)
 {
-    memory_.at(addr) = value;
+    try
+    {
+        memory_.at(addr) = value;
+    }
+    catch (const std::out_of_range&)
+    {
+        log_error("Ignoring memory write access at {:#06x}.", addr);
+    }
 }
 
 std::uint16_t Memory::read16(std::uint16_t addr)

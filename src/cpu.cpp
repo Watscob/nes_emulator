@@ -1,4 +1,5 @@
 #include "cpu.hpp"
+#include <stdexcept>
 #include "log.hpp"
 
 void Cpu::load_and_run(std::vector<std::uint8_t> rom)
@@ -29,7 +30,17 @@ void Cpu::run()
     while (1)
     {
         std::uint8_t code = memory_->read8(program_counter_++);
-        OpCode opcode = OPCODES.at(code);
+        OpCode opcode;
+
+        try
+        {
+            opcode = OPCODES.at(code);
+        }
+        catch (const std::out_of_range&)
+        {
+            log_error("Code {:#04x} does not exists.", code);
+            continue;
+        }
 
         std::uint16_t program_counter_state = program_counter_;
 
