@@ -61,6 +61,17 @@ void Cpu::run()
         case 0x3D:
             op_and(opcode.mode);
             break;
+        /* ASL accumulator */
+        case 0x0A:
+            op_asl_accumulator();
+            break;
+        /* ASL */
+        case 0x06:
+        case 0x0E:
+        case 0x16:
+        case 0x1E:
+            op_asl(opcode.mode);
+            break;
         /* CLC */
         case 0x18:
             set_carry(0);
@@ -385,11 +396,27 @@ void Cpu::op_and(AddressingMode mode)
     update_zero_and_negative(register_a_);
 }
 
+void Cpu::op_asl_accumulator()
+{
+    set_carry((register_a_ >> 7) & 0x1);
+    register_a_ <<= 1;
+    update_zero_and_negative(register_a_);
+}
+
+void Cpu::op_asl(AddressingMode mode)
+{
+    std::uint16_t addr = get_operand_address(mode);
+    std::uint8_t value = memory_->read8(addr);
+    set_carry((value >> 7) & 0x1);
+    value <<= 1;
+    memory_->write8(addr, value);
+    update_zero_and_negative(value);
+}
+
 void Cpu::op_cmp(AddressingMode mode, std::uint8_t compare_with)
 {
     std::uint16_t addr = get_operand_address(mode);
     std::uint8_t value = memory_->read8(addr);
-
     set_carry(compare_with >= value);
     update_zero_and_negative(compare_with - value);
 }
@@ -508,13 +535,11 @@ void Cpu::op_plp()
 
 void Cpu::op_rol_accumulator()
 {
-    std::uint8_t value = register_a_;
     bool old_carry = get_carry();
-    set_carry((value >> 7) & 0x1);
-    value <<= 1;
+    set_carry((register_a_ >> 7) & 0x1);
+    register_a_ <<= 1;
     if (old_carry)
-        value |= 0x1;
-    register_a_ = value;
+        register_a_ |= 0x1;
     update_zero_and_negative(register_a_);
 }
 
@@ -533,13 +558,11 @@ void Cpu::op_rol(AddressingMode mode)
 
 void Cpu::op_ror_accumulator()
 {
-    std::uint8_t value = register_a_;
     bool old_carry = get_carry();
-    set_carry(value & 0x1);
-    value >>= 1;
+    set_carry(register_a_ & 0x1);
+    register_a_ >>= 1;
     if (old_carry)
-        value |= 0x80;
-    register_a_ = value;
+        register_a_ |= 0x80;
     update_zero_and_negative(register_a_);
 }
 

@@ -90,6 +90,8 @@ class Cpu
     std::uint16_t stack_pop16();
 
     void op_and(AddressingMode mode);
+    void op_asl_accumulator();
+    void op_asl(AddressingMode mode);
     void op_cmp(AddressingMode mode, std::uint8_t compare_with);
     void op_dec(AddressingMode mode);
     void op_dex();
