@@ -79,10 +79,10 @@ class Cpu
 
     std::uint16_t get_operand_address(AddressingMode mode);
 
-    void inx();
-    void lda(AddressingMode mode);
-    void sta(AddressingMode mode);
-    void tax();
+    void op_inx();
+    void op_lda(AddressingMode mode);
+    void op_sta(AddressingMode mode);
+    void op_tax();
 };
 
 #endif /* CPU_HPP */

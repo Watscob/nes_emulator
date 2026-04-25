@@ -40,7 +40,7 @@ void Cpu::run()
             return;
         /* INX */
         case 0xE8:
-            inx();
+            op_inx();
             break;
         /* LDA */
         case 0xA1:
@@ -51,7 +51,7 @@ void Cpu::run()
         case 0xB5:
         case 0xB9:
         case 0xBD:
-            lda(opcode.mode);
+            op_lda(opcode.mode);
             break;
         /* STA */
         case 0x81:
@@ -61,11 +61,11 @@ void Cpu::run()
         case 0x95:
         case 0x99:
         case 0x9D:
-            sta(opcode.mode);
+            op_sta(opcode.mode);
             break;
         /* TAX */
         case 0xAA:
-            tax();
+            op_tax();
             break;
         /* UNKNOWN */
         default:
@@ -131,26 +131,26 @@ std::uint16_t Cpu::get_operand_address(AddressingMode mode)
     }
 }
 
-void Cpu::inx()
+void Cpu::op_inx()
 {
     register_x_++;
     update_zero_and_negative(register_x_);
 }
 
-void Cpu::lda(AddressingMode mode)
+void Cpu::op_lda(AddressingMode mode)
 {
     std::uint16_t addr = get_operand_address(mode);
     register_a_ = memory_->read8(addr);
     update_zero_and_negative(register_a_);
 }
 
-void Cpu::sta(AddressingMode mode)
+void Cpu::op_sta(AddressingMode mode)
 {
     std::uint16_t addr = get_operand_address(mode);
     memory_->write8(addr, register_a_);
 }
 
-void Cpu::tax()
+void Cpu::op_tax()
 {
     register_x_ = register_a_;
     update_zero_and_negative(register_x_);
