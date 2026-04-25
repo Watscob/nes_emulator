@@ -192,6 +192,28 @@ void Cpu::run()
         case 0x1D:
             op_ora(opcode.mode);
             break;
+        /* ROL accumulator */
+        case 0x2A:
+            op_rol_accumulator();
+            break;
+        /* ROL */
+        case 0x26:
+        case 0x2E:
+        case 0x36:
+        case 0x3E:
+            op_rol(opcode.mode);
+            break;
+        /* ROR accumulator */
+        case 0x6A:
+            op_ror_accumulator();
+            break;
+        /* ROR */
+        case 0x66:
+        case 0x6E:
+        case 0x76:
+        case 0x7E:
+            op_ror(opcode.mode);
+            break;
         /* STA */
         case 0x81:
         case 0x85:
@@ -378,6 +400,56 @@ void Cpu::op_ora(AddressingMode mode)
     std::uint16_t addr = get_operand_address(mode);
     register_a_ |= memory_->read8(addr);
     update_zero_and_negative(register_a_);
+}
+
+void Cpu::op_rol_accumulator()
+{
+    std::uint8_t value = register_a_;
+    bool old_carry = get_carry();
+    set_carry((value >> 7) & 0x1);
+    value <<= 1;
+    if (old_carry)
+        value |= 0x1;
+    register_a_ = value;
+    update_zero_and_negative(register_a_);
+}
+
+void Cpu::op_rol(AddressingMode mode)
+{
+    std::uint16_t addr = get_operand_address(mode);
+    std::uint8_t value = memory_->read8(addr);
+    bool old_carry = get_carry();
+    set_carry((value >> 7) & 0x1);
+    value <<= 1;
+    if (old_carry)
+        value |= 0x1;
+    memory_->write8(addr, value);
+    update_zero_and_negative(value);
+}
+
+void Cpu::op_ror_accumulator()
+{
+    std::uint8_t value = register_a_;
+    bool old_carry = get_carry();
+    set_carry(value & 0x1);
+    value >>= 1;
+    if (old_carry)
+        value |= 0x80;
+    register_a_ = value;
+    update_zero_and_negative(register_a_);
+}
+
+void Cpu::op_ror(AddressingMode mode)
+{
+    std::uint16_t addr = get_operand_address(mode);
+    std::uint8_t value = memory_->read8(addr);
+    bool old_carry = get_carry();
+    set_carry(value & 0x1);
+    value >>= 1;
+    if (old_carry)
+        value |= 0x80;
+    memory_->write8(addr, value);
+    update_zero_and_negative(value);
 }
 
 void Cpu::op_sta(AddressingMode mode)
