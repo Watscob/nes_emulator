@@ -95,6 +95,11 @@ void Cpu::run()
         case 0xF0:
             op_branch(get_zero());
             break;
+        /* BIT */
+        case 0x24:
+        case 0x2C:
+            op_bit(opcode.mode);
+            break;
         /* BMI */
         case 0x30:
             op_branch(get_negative());
@@ -494,6 +499,15 @@ void Cpu::op_branch(bool condition)
         program_counter_ += 1;
         program_counter_ += static_cast<std::uint16_t>(jump);
     }
+}
+
+void Cpu::op_bit(AddressingMode mode)
+{
+    std::uint16_t addr = get_operand_address(mode);
+    std::uint8_t value = memory_->read8(addr);
+    set_zero(!(register_a_ & value));
+    set_overflow((value >> 6) & 0x1);
+    set_negative((value >> 7) & 0x1);
 }
 
 void Cpu::op_cmp(AddressingMode mode, std::uint8_t compare_with)
