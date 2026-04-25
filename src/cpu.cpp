@@ -88,6 +88,21 @@ void Cpu::run()
         case 0xCC:
             op_cmp(opcode.mode, register_y_);
             break;
+        /* DEC */
+        case 0xC6:
+        case 0xCE:
+        case 0xD6:
+        case 0xDE:
+            op_dec(opcode.mode);
+            break;
+        /* DEX */
+        case 0xCA:
+            op_dex();
+            break;
+        /* DEY */
+        case 0x88:
+            op_dey();
+            break;
         /* INX */
         case 0xE8:
             op_inx();
@@ -195,6 +210,27 @@ void Cpu::op_cmp(AddressingMode mode, std::uint8_t compare_with)
 
     set_carry(compare_with >= value);
     update_zero_and_negative(compare_with - value);
+}
+
+void Cpu::op_dec(AddressingMode mode)
+{
+    std::uint16_t addr = get_operand_address(mode);
+    std::uint8_t value = memory_->read8(addr);
+    value--;
+    memory_->write8(addr, value);
+    update_zero_and_negative(value);
+}
+
+void Cpu::op_dex()
+{
+    register_x_--;
+    update_zero_and_negative(register_x_);
+}
+
+void Cpu::op_dey()
+{
+    register_y_--;
+    update_zero_and_negative(register_y_);
 }
 
 void Cpu::op_inx()

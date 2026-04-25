@@ -81,6 +81,9 @@ class Cpu
 
     void op_and(AddressingMode mode);
     void op_cmp(AddressingMode mode, std::uint8_t compare_with);
+    void op_dec(AddressingMode mode);
+    void op_dex();
+    void op_dey();
     void op_inx();
     void op_lda(AddressingMode mode);
     void op_sta(AddressingMode mode);
