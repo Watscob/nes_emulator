@@ -103,6 +103,7 @@ class Cpu
     void op_sty(AddressingMode mode);
     void op_tax();
     void op_tay();
+    void op_txa();
 };
 
 #endif /* CPU_HPP */
