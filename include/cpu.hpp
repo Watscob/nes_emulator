@@ -99,6 +99,8 @@ class Cpu
     void op_ror_accumulator();
     void op_ror(AddressingMode mode);
     void op_sta(AddressingMode mode);
+    void op_stx(AddressingMode mode);
+    void op_sty(AddressingMode mode);
     void op_tax();
 };
 

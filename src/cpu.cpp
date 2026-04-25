@@ -236,6 +236,18 @@ void Cpu::run()
         case 0x9D:
             op_sta(opcode.mode);
             break;
+        /* STX */
+        case 0x86:
+        case 0x8E:
+        case 0x96:
+            op_stx(opcode.mode);
+            break;
+        /* STY */
+        case 0x84:
+        case 0x8C:
+        case 0x94:
+            op_sty(opcode.mode);
+            break;
         /* TAX */
         case 0xAA:
             op_tax();
@@ -468,6 +480,18 @@ void Cpu::op_sta(AddressingMode mode)
 {
     std::uint16_t addr = get_operand_address(mode);
     memory_->write8(addr, register_a_);
+}
+
+void Cpu::op_stx(AddressingMode mode)
+{
+    std::uint16_t addr = get_operand_address(mode);
+    memory_->write8(addr, register_x_);
+}
+
+void Cpu::op_sty(AddressingMode mode)
+{
+    std::uint16_t addr = get_operand_address(mode);
+    memory_->write8(addr, register_y_);
 }
 
 void Cpu::op_tax()
