@@ -83,6 +83,38 @@ void Cpu::run()
         case 0x1E:
             op_asl(opcode.mode);
             break;
+        /* BCC */
+        case 0x90:
+            op_branch(!get_carry());
+            break;
+        /* BCS */
+        case 0xB0:
+            op_branch(get_carry());
+            break;
+        /* BEQ */
+        case 0xF0:
+            op_branch(get_zero());
+            break;
+        /* BMI */
+        case 0x30:
+            op_branch(get_negative());
+            break;
+        /* BNE */
+        case 0xD0:
+            op_branch(!get_zero());
+            break;
+        /* BPL */
+        case 0x10:
+            op_branch(!get_negative());
+            break;
+        /* BVC */
+        case 0x50:
+            op_branch(!get_overflow());
+            break;
+        /* BVS */
+        case 0x70:
+            op_branch(get_overflow());
+            break;
         /* CLC */
         case 0x18:
             set_carry(0);
@@ -452,6 +484,16 @@ void Cpu::op_asl(AddressingMode mode)
     value <<= 1;
     memory_->write8(addr, value);
     update_zero_and_negative(value);
+}
+
+void Cpu::op_branch(bool condition)
+{
+    if (condition)
+    {
+        std::int8_t jump = static_cast<std::int8_t>(memory_->read8(program_counter_));
+        program_counter_ += 1;
+        program_counter_ += static_cast<std::uint16_t>(jump);
+    }
 }
 
 void Cpu::op_cmp(AddressingMode mode, std::uint8_t compare_with)
