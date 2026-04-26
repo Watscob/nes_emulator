@@ -2,17 +2,17 @@
 #include <stdexcept>
 #include "log.hpp"
 
-void Cpu::load_and_run(std::vector<std::uint8_t> rom)
+void Cpu::load_and_run(std::vector<std::uint8_t> rom, std::uint16_t start_addr)
 {
-    load(rom);
+    load(rom, start_addr);
     reset();
     run();
 }
 
-void Cpu::load(std::vector<std::uint8_t> rom)
+void Cpu::load(std::vector<std::uint8_t> rom, std::uint16_t start_addr)
 {
-    memory_->load(0x8000, rom);
-    memory_->write16(0xFFFC, 0x8000);
+    memory_->load(start_addr, rom);
+    memory_->write16(0xFFFC, start_addr);
 }
 
 void Cpu::reset()

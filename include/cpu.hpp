@@ -32,8 +32,8 @@ class Cpu
 
     ~Cpu() = default;
 
-    void load_and_run(std::vector<std::uint8_t> rom);
-    void load(std::vector<std::uint8_t> rom);
+    void load_and_run(std::vector<std::uint8_t> rom, std::uint16_t start_addr = 0x8000);
+    void load(std::vector<std::uint8_t> rom, std::uint16_t start_addr = 0x8000);
     void reset();
     void run();
     void run_with_callback(std::function<void(Cpu&)> callback);
