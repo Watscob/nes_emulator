@@ -2,6 +2,7 @@
 #define CPU_HPP
 
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <vector>
 #include "memory.hpp"
@@ -35,6 +36,7 @@ class Cpu
     void load(std::vector<std::uint8_t> rom);
     void reset();
     void run();
+    void run_with_callback(std::function<void(Cpu&)> callback);
 
     bool get_carry() { return get_flag<FLAG_C>(); }
     bool get_zero() { return get_flag<FLAG_Z>(); }

@@ -28,8 +28,15 @@ void Cpu::reset()
 
 void Cpu::run()
 {
+    run_with_callback([](Cpu&) {});
+}
+
+void Cpu::run_with_callback(std::function<void(Cpu&)> callback)
+{
     while (1)
     {
+        callback(*this);
+
         std::uint8_t code = memory_->read8(program_counter_++);
         OpCode opcode;
 
