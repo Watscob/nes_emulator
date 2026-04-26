@@ -121,6 +121,8 @@ class Cpu
     void op_rol(AddressingMode mode);
     void op_ror_accumulator();
     void op_ror(AddressingMode mode);
+    void op_rti();
+    void op_rts();
     void op_sbc(AddressingMode mode);
     void op_sta(AddressingMode mode);
     void op_stx(AddressingMode mode);

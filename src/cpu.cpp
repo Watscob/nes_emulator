@@ -302,6 +302,14 @@ void Cpu::run()
         case 0x7E:
             op_ror(opcode.mode);
             break;
+        /* RTI */
+        case 0x40:
+            op_rti();
+            break;
+        /* RTS */
+        case 0x60:
+            op_rts();
+            break;
         /* SBC */
         case 0xE1:
         case 0xE5:
@@ -713,6 +721,18 @@ void Cpu::op_ror(AddressingMode mode)
         value |= 0x80;
     memory_->write8(addr, value);
     update_zero_and_negative(value);
+}
+
+void Cpu::op_rti()
+{
+    status_ = stack_pop8();
+    set_break(0);
+    program_counter_ = stack_pop16();
+}
+
+void Cpu::op_rts()
+{
+    program_counter_ = stack_pop16() + 1;
 }
 
 void Cpu::op_sbc(AddressingMode mode)
