@@ -1,17 +1,22 @@
-find_package(GTest REQUIRED)
-include(GoogleTest)
+enable_testing()
 
-add_executable(
-    test_nesemulator
-    test_cpu.cpp
-)
+find_package(GTest)
 
-target_link_libraries(
-    test_nesemulator
-    PRIVATE
-    nesemulator_lib
-    GTest::GTest
-    GTest::Main
-)
+if(GTest_FOUND)
+    include(GoogleTest)
 
-gtest_discover_tests(test_nesemulator)
+    add_executable(
+        test_nesemulator
+        test_cpu.cpp
+    )
+
+    target_link_libraries(
+        test_nesemulator
+        PRIVATE
+        nesemulator_lib
+        GTest::GTest
+        GTest::Main
+    )
+
+    gtest_discover_tests(test_nesemulator)
+endif()

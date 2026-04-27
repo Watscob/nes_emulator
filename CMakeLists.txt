@@ -16,6 +16,4 @@ add_compile_options(
 )
 
 add_subdirectory(src)
-
-enable_testing()
 add_subdirectory(tests)
