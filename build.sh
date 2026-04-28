@@ -2,6 +2,7 @@
 
 BUILD=false
 CLEAN=false
+WASM=""
 
 BUILD_DIR="build"
 
@@ -10,10 +11,11 @@ help()
     echo "./build.sh [OPTION]+"
     echo "      --[b]uild"
     echo "      --[c]lean"
+    echo "      --[w]asm"
     echo "      --[h]elp"
 }
 
-VALID_ARGS=$(getopt -o bch --long build,clean,help -- "$@")
+VALID_ARGS=$(getopt -o bcwh --long build,clean,wasm,help -- "$@")
 if [[ $? -ne 0 ]]; then
     exit 1;
 fi
@@ -27,6 +29,10 @@ while [ : ]; do
             ;;
         -c | --clean)
             CLEAN=true
+            shift
+            ;;
+        -w | --wasm)
+            WASM=emcmake
             shift
             ;;
         -h | --help)
@@ -53,7 +59,7 @@ if $BUILD; then
     fi
 
     cd $BUILD_DIR
-    cmake ..
+    $WASM cmake ..
 
     cmake --build . -j$(nproc)
 fi

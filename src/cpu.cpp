@@ -6,7 +6,7 @@ void Cpu::load_and_run(std::vector<std::uint8_t> rom, std::uint16_t start_addr)
 {
     load(rom, start_addr);
     reset();
-    run();
+    while (execute()) {}
 }
 
 void Cpu::load(std::vector<std::uint8_t> rom, std::uint16_t start_addr)
@@ -26,375 +26,374 @@ void Cpu::reset()
     program_counter_ = memory_->read16(0xFFFC);
 }
 
-void Cpu::run()
+bool Cpu::execute()
 {
-    run_with_callback([](Cpu&) {});
+    return execute_with_callback([](Cpu&) {});
 }
 
-void Cpu::run_with_callback(std::function<void(Cpu&)> callback)
+bool Cpu::execute_with_callback(std::function<void(Cpu&)> callback)
 {
-    while (1)
+    callback(*this);
+
+    std::uint8_t code = memory_->read8(program_counter_++);
+    OpCode opcode;
+
+    try
     {
-        callback(*this);
-
-        std::uint8_t code = memory_->read8(program_counter_++);
-        OpCode opcode;
-
-        try
-        {
-            opcode = OPCODES.at(code);
-        }
-        catch (const std::out_of_range&)
-        {
-            log_error("Code {:#04x} does not exists.", code);
-            continue;
-        }
-
-        std::uint16_t program_counter_state = program_counter_;
-
-        switch (code)
-        {
-        /* BRK */
-        case 0x00:
-            return;
-        /* ADC */
-        case 0x61:
-        case 0x65:
-        case 0x69:
-        case 0x6D:
-        case 0x71:
-        case 0x75:
-        case 0x79:
-        case 0x7D:
-            op_adc(opcode.mode);
-            break;
-        /* AND */
-        case 0x21:
-        case 0x25:
-        case 0x29:
-        case 0x2D:
-        case 0x31:
-        case 0x35:
-        case 0x39:
-        case 0x3D:
-            op_and(opcode.mode);
-            break;
-        /* ASL accumulator */
-        case 0x0A:
-            op_asl_accumulator();
-            break;
-        /* ASL */
-        case 0x06:
-        case 0x0E:
-        case 0x16:
-        case 0x1E:
-            op_asl(opcode.mode);
-            break;
-        /* BCC */
-        case 0x90:
-            op_branch(!get_carry());
-            break;
-        /* BCS */
-        case 0xB0:
-            op_branch(get_carry());
-            break;
-        /* BEQ */
-        case 0xF0:
-            op_branch(get_zero());
-            break;
-        /* BIT */
-        case 0x24:
-        case 0x2C:
-            op_bit(opcode.mode);
-            break;
-        /* BMI */
-        case 0x30:
-            op_branch(get_negative());
-            break;
-        /* BNE */
-        case 0xD0:
-            op_branch(!get_zero());
-            break;
-        /* BPL */
-        case 0x10:
-            op_branch(!get_negative());
-            break;
-        /* BVC */
-        case 0x50:
-            op_branch(!get_overflow());
-            break;
-        /* BVS */
-        case 0x70:
-            op_branch(get_overflow());
-            break;
-        /* CLC */
-        case 0x18:
-            set_carry(0);
-            break;
-        /* CLD */
-        case 0xD8:
-            set_decimal(0);
-            break;
-        /* CLI */
-        case 0x58:
-            set_interrupt(0);
-            break;
-        /* CLV */
-        case 0xB8:
-            set_overflow(0);
-            break;
-        /* CMP */
-        case 0xC1:
-        case 0xC5:
-        case 0xC9:
-        case 0xCD:
-        case 0xD1:
-        case 0xD5:
-        case 0xD9:
-        case 0xDD:
-            op_cmp(opcode.mode, register_a_);
-            break;
-        /* CPX */
-        case 0xE0:
-        case 0xE4:
-        case 0xEC:
-            op_cmp(opcode.mode, register_x_);
-            break;
-        /* CPY */
-        case 0xC0:
-        case 0xC4:
-        case 0xCC:
-            op_cmp(opcode.mode, register_y_);
-            break;
-        /* DEC */
-        case 0xC6:
-        case 0xCE:
-        case 0xD6:
-        case 0xDE:
-            op_dec(opcode.mode);
-            break;
-        /* DEX */
-        case 0xCA:
-            op_dex();
-            break;
-        /* DEY */
-        case 0x88:
-            op_dey();
-            break;
-        /* EOR */
-        case 0x41:
-        case 0x45:
-        case 0x49:
-        case 0x4D:
-        case 0x51:
-        case 0x55:
-        case 0x59:
-        case 0x5D:
-            op_eor(opcode.mode);
-            break;
-        /* INC */
-        case 0xE6:
-        case 0xEE:
-        case 0xF6:
-        case 0xFE:
-            op_inc(opcode.mode);
-            break;
-        /* INX */
-        case 0xE8:
-            op_inx();
-            break;
-        /* INY */
-        case 0xC8:
-            op_iny();
-            break;
-        /* JMP absolute */
-        case 0x4C:
-            op_jmp_absolute();
-            break;
-        /* JMP indirect */
-        case 0x6C:
-            op_jmp_indirect();
-            break;
-        /* JSR */
-        case 0x20:
-            op_jsr();
-            break;
-        /* LDA */
-        case 0xA1:
-        case 0xA5:
-        case 0xA9:
-        case 0xAD:
-        case 0xB1:
-        case 0xB5:
-        case 0xB9:
-        case 0xBD:
-            op_lda(opcode.mode);
-            break;
-        /* LDX */
-        case 0xA2:
-        case 0xA6:
-        case 0xAE:
-        case 0xB6:
-        case 0xBE:
-            op_ldx(opcode.mode);
-            break;
-        /* LDY */
-        case 0xA0:
-        case 0xA4:
-        case 0xAC:
-        case 0xB4:
-        case 0xBC:
-            op_ldy(opcode.mode);
-            break;
-        /* LSR accumulator */
-        case 0x4A:
-            op_lsr_accumulator();
-            break;
-        /* LSR */
-        case 0x46:
-        case 0x4E:
-        case 0x56:
-        case 0x5E:
-            op_lsr(opcode.mode);
-            break;
-        /* NOP */
-        case 0xEA:
-            break;
-        /* ORA */
-        case 0x01:
-        case 0x05:
-        case 0x09:
-        case 0x0D:
-        case 0x11:
-        case 0x15:
-        case 0x19:
-        case 0x1D:
-            op_ora(opcode.mode);
-            break;
-        /* PHA */
-        case 0x48:
-            stack_push8(register_a_);
-            break;
-        /* PHP */
-        case 0x08:
-            op_php();
-            break;
-        /* PLA */
-        case 0x68:
-            op_pla();
-            break;
-        /* PLP */
-        case 0x28:
-            op_plp();
-            break;
-        /* ROL accumulator */
-        case 0x2A:
-            op_rol_accumulator();
-            break;
-        /* ROL */
-        case 0x26:
-        case 0x2E:
-        case 0x36:
-        case 0x3E:
-            op_rol(opcode.mode);
-            break;
-        /* ROR accumulator */
-        case 0x6A:
-            op_ror_accumulator();
-            break;
-        /* ROR */
-        case 0x66:
-        case 0x6E:
-        case 0x76:
-        case 0x7E:
-            op_ror(opcode.mode);
-            break;
-        /* RTI */
-        case 0x40:
-            op_rti();
-            break;
-        /* RTS */
-        case 0x60:
-            op_rts();
-            break;
-        /* SBC */
-        case 0xE1:
-        case 0xE5:
-        case 0xE9:
-        case 0xED:
-        case 0xF1:
-        case 0xF5:
-        case 0xF9:
-        case 0xFD:
-            op_sbc(opcode.mode);
-            break;
-        /* SEC */
-        case 0x38:
-            set_carry(1);
-            break;
-        /* SED */
-        case 0xF8:
-            set_decimal(1);
-            break;
-        /* SEI */
-        case 0x78:
-            set_interrupt(1);
-            break;
-        /* STA */
-        case 0x81:
-        case 0x85:
-        case 0x8D:
-        case 0x91:
-        case 0x95:
-        case 0x99:
-        case 0x9D:
-            op_sta(opcode.mode);
-            break;
-        /* STX */
-        case 0x86:
-        case 0x8E:
-        case 0x96:
-            op_stx(opcode.mode);
-            break;
-        /* STY */
-        case 0x84:
-        case 0x8C:
-        case 0x94:
-            op_sty(opcode.mode);
-            break;
-        /* TAX */
-        case 0xAA:
-            op_tax();
-            break;
-        /* TAY */
-        case 0xA8:
-            op_tay();
-            break;
-        /* TSX */
-        case 0xBA:
-            op_tsx();
-            break;
-        /* TXA */
-        case 0x8A:
-            op_txa();
-            break;
-        /* TXS */
-        case 0x9A:
-            op_txs();
-            break;
-        /* TYA */
-        case 0x98:
-            op_tya();
-            break;
-        /* UNKNOWN */
-        default:
-            log_error("Code {} ({:#04x}) is not implemented.", opcode.name, code);
-            break;
-        }
-
-        if (program_counter_state == program_counter_)
-            program_counter_ += static_cast<std::uint16_t>(opcode.len - 1);
+        opcode = OPCODES.at(code);
     }
+    catch (const std::out_of_range&)
+    {
+        log_error("Code {:#04x} does not exists.", code);
+        return false;
+    }
+
+    std::uint16_t program_counter_state = program_counter_;
+
+    switch (code)
+    {
+    /* BRK */
+    case 0x00:
+        return false;
+    /* ADC */
+    case 0x61:
+    case 0x65:
+    case 0x69:
+    case 0x6D:
+    case 0x71:
+    case 0x75:
+    case 0x79:
+    case 0x7D:
+        op_adc(opcode.mode);
+        break;
+    /* AND */
+    case 0x21:
+    case 0x25:
+    case 0x29:
+    case 0x2D:
+    case 0x31:
+    case 0x35:
+    case 0x39:
+    case 0x3D:
+        op_and(opcode.mode);
+        break;
+    /* ASL accumulator */
+    case 0x0A:
+        op_asl_accumulator();
+        break;
+    /* ASL */
+    case 0x06:
+    case 0x0E:
+    case 0x16:
+    case 0x1E:
+        op_asl(opcode.mode);
+        break;
+    /* BCC */
+    case 0x90:
+        op_branch(!get_carry());
+        break;
+    /* BCS */
+    case 0xB0:
+        op_branch(get_carry());
+        break;
+    /* BEQ */
+    case 0xF0:
+        op_branch(get_zero());
+        break;
+    /* BIT */
+    case 0x24:
+    case 0x2C:
+        op_bit(opcode.mode);
+        break;
+    /* BMI */
+    case 0x30:
+        op_branch(get_negative());
+        break;
+    /* BNE */
+    case 0xD0:
+        op_branch(!get_zero());
+        break;
+    /* BPL */
+    case 0x10:
+        op_branch(!get_negative());
+        break;
+    /* BVC */
+    case 0x50:
+        op_branch(!get_overflow());
+        break;
+    /* BVS */
+    case 0x70:
+        op_branch(get_overflow());
+        break;
+    /* CLC */
+    case 0x18:
+        set_carry(0);
+        break;
+    /* CLD */
+    case 0xD8:
+        set_decimal(0);
+        break;
+    /* CLI */
+    case 0x58:
+        set_interrupt(0);
+        break;
+    /* CLV */
+    case 0xB8:
+        set_overflow(0);
+        break;
+    /* CMP */
+    case 0xC1:
+    case 0xC5:
+    case 0xC9:
+    case 0xCD:
+    case 0xD1:
+    case 0xD5:
+    case 0xD9:
+    case 0xDD:
+        op_cmp(opcode.mode, register_a_);
+        break;
+    /* CPX */
+    case 0xE0:
+    case 0xE4:
+    case 0xEC:
+        op_cmp(opcode.mode, register_x_);
+        break;
+    /* CPY */
+    case 0xC0:
+    case 0xC4:
+    case 0xCC:
+        op_cmp(opcode.mode, register_y_);
+        break;
+    /* DEC */
+    case 0xC6:
+    case 0xCE:
+    case 0xD6:
+    case 0xDE:
+        op_dec(opcode.mode);
+        break;
+    /* DEX */
+    case 0xCA:
+        op_dex();
+        break;
+    /* DEY */
+    case 0x88:
+        op_dey();
+        break;
+    /* EOR */
+    case 0x41:
+    case 0x45:
+    case 0x49:
+    case 0x4D:
+    case 0x51:
+    case 0x55:
+    case 0x59:
+    case 0x5D:
+        op_eor(opcode.mode);
+        break;
+    /* INC */
+    case 0xE6:
+    case 0xEE:
+    case 0xF6:
+    case 0xFE:
+        op_inc(opcode.mode);
+        break;
+    /* INX */
+    case 0xE8:
+        op_inx();
+        break;
+    /* INY */
+    case 0xC8:
+        op_iny();
+        break;
+    /* JMP absolute */
+    case 0x4C:
+        op_jmp_absolute();
+        break;
+    /* JMP indirect */
+    case 0x6C:
+        op_jmp_indirect();
+        break;
+    /* JSR */
+    case 0x20:
+        op_jsr();
+        break;
+    /* LDA */
+    case 0xA1:
+    case 0xA5:
+    case 0xA9:
+    case 0xAD:
+    case 0xB1:
+    case 0xB5:
+    case 0xB9:
+    case 0xBD:
+        op_lda(opcode.mode);
+        break;
+    /* LDX */
+    case 0xA2:
+    case 0xA6:
+    case 0xAE:
+    case 0xB6:
+    case 0xBE:
+        op_ldx(opcode.mode);
+        break;
+    /* LDY */
+    case 0xA0:
+    case 0xA4:
+    case 0xAC:
+    case 0xB4:
+    case 0xBC:
+        op_ldy(opcode.mode);
+        break;
+    /* LSR accumulator */
+    case 0x4A:
+        op_lsr_accumulator();
+        break;
+    /* LSR */
+    case 0x46:
+    case 0x4E:
+    case 0x56:
+    case 0x5E:
+        op_lsr(opcode.mode);
+        break;
+    /* NOP */
+    case 0xEA:
+        break;
+    /* ORA */
+    case 0x01:
+    case 0x05:
+    case 0x09:
+    case 0x0D:
+    case 0x11:
+    case 0x15:
+    case 0x19:
+    case 0x1D:
+        op_ora(opcode.mode);
+        break;
+    /* PHA */
+    case 0x48:
+        stack_push8(register_a_);
+        break;
+    /* PHP */
+    case 0x08:
+        op_php();
+        break;
+    /* PLA */
+    case 0x68:
+        op_pla();
+        break;
+    /* PLP */
+    case 0x28:
+        op_plp();
+        break;
+    /* ROL accumulator */
+    case 0x2A:
+        op_rol_accumulator();
+        break;
+    /* ROL */
+    case 0x26:
+    case 0x2E:
+    case 0x36:
+    case 0x3E:
+        op_rol(opcode.mode);
+        break;
+    /* ROR accumulator */
+    case 0x6A:
+        op_ror_accumulator();
+        break;
+    /* ROR */
+    case 0x66:
+    case 0x6E:
+    case 0x76:
+    case 0x7E:
+        op_ror(opcode.mode);
+        break;
+    /* RTI */
+    case 0x40:
+        op_rti();
+        break;
+    /* RTS */
+    case 0x60:
+        op_rts();
+        break;
+    /* SBC */
+    case 0xE1:
+    case 0xE5:
+    case 0xE9:
+    case 0xED:
+    case 0xF1:
+    case 0xF5:
+    case 0xF9:
+    case 0xFD:
+        op_sbc(opcode.mode);
+        break;
+    /* SEC */
+    case 0x38:
+        set_carry(1);
+        break;
+    /* SED */
+    case 0xF8:
+        set_decimal(1);
+        break;
+    /* SEI */
+    case 0x78:
+        set_interrupt(1);
+        break;
+    /* STA */
+    case 0x81:
+    case 0x85:
+    case 0x8D:
+    case 0x91:
+    case 0x95:
+    case 0x99:
+    case 0x9D:
+        op_sta(opcode.mode);
+        break;
+    /* STX */
+    case 0x86:
+    case 0x8E:
+    case 0x96:
+        op_stx(opcode.mode);
+        break;
+    /* STY */
+    case 0x84:
+    case 0x8C:
+    case 0x94:
+        op_sty(opcode.mode);
+        break;
+    /* TAX */
+    case 0xAA:
+        op_tax();
+        break;
+    /* TAY */
+    case 0xA8:
+        op_tay();
+        break;
+    /* TSX */
+    case 0xBA:
+        op_tsx();
+        break;
+    /* TXA */
+    case 0x8A:
+        op_txa();
+        break;
+    /* TXS */
+    case 0x9A:
+        op_txs();
+        break;
+    /* TYA */
+    case 0x98:
+        op_tya();
+        break;
+    /* UNKNOWN */
+    default:
+        log_error("Code {} ({:#04x}) is not implemented.", opcode.name, code);
+        break;
+    }
+
+    if (program_counter_state == program_counter_)
+        program_counter_ += static_cast<std::uint16_t>(opcode.len - 1);
+
+    return true;
 }
 
 std::uint16_t Cpu::get_operand_address(AddressingMode mode)

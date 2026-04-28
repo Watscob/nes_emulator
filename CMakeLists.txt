@@ -13,6 +13,8 @@ add_compile_options(
     -Wall
     -Wextra
     -Werror
+    -O3
+    -flto
 )
 
 add_subdirectory(src)

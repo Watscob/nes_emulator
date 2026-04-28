@@ -35,8 +35,8 @@ class Cpu
     void load_and_run(std::vector<std::uint8_t> rom, std::uint16_t start_addr = 0x8000);
     void load(std::vector<std::uint8_t> rom, std::uint16_t start_addr = 0x8000);
     void reset();
-    void run();
-    void run_with_callback(std::function<void(Cpu&)> callback);
+    bool execute();
+    bool execute_with_callback(std::function<void(Cpu&)> callback);
 
     bool get_carry() { return get_flag<FLAG_C>(); }
     bool get_zero() { return get_flag<FLAG_Z>(); }
