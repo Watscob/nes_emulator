@@ -17,10 +17,10 @@ void Cpu::load(std::vector<uint8_t> rom, uint16_t start_addr)
 
 void Cpu::reset()
 {
-    register_a_ = 0u;
-    register_x_ = 0u;
-    register_y_ = 0u;
-    status_ = 0x24;
+    register_a_    = 0u;
+    register_x_    = 0u;
+    register_y_    = 0u;
+    status_        = 0x24;
     stack_pointer_ = STACK_RESET;
 
     program_counter_ = memory_->read16(0xFFFC);
@@ -438,7 +438,7 @@ uint16_t Cpu::get_operand_address(AddressingMode mode)
     }
     case AddressingMode::INDIRECT_Y:
     {
-        uint16_t addr = memory_->read8(program_counter_);
+        uint16_t addr  = memory_->read8(program_counter_);
         uint16_t deref = memory_->read16(addr);
         deref += register_y_;
         return deref;
@@ -603,8 +603,8 @@ void Cpu::op_jmp_indirect()
 
     if ((addr & 0x00FF) == 0x00FF)
     {
-        uint16_t lo = memory_->read8(addr);
-        uint16_t hi = memory_->read8(addr & 0xFF00);
+        uint16_t lo      = memory_->read8(addr);
+        uint16_t hi      = memory_->read8(addr & 0xFF00);
         program_counter_ = (hi << 8) | lo;
     }
     else
@@ -622,21 +622,21 @@ void Cpu::op_jsr()
 void Cpu::op_lda(AddressingMode mode)
 {
     uint16_t addr = get_operand_address(mode);
-    register_a_ = memory_->read8(addr);
+    register_a_   = memory_->read8(addr);
     update_zero_and_negative(register_a_);
 }
 
 void Cpu::op_ldx(AddressingMode mode)
 {
     uint16_t addr = get_operand_address(mode);
-    register_x_ = memory_->read8(addr);
+    register_x_   = memory_->read8(addr);
     update_zero_and_negative(register_x_);
 }
 
 void Cpu::op_ldy(AddressingMode mode)
 {
     uint16_t addr = get_operand_address(mode);
-    register_y_ = memory_->read8(addr);
+    register_y_   = memory_->read8(addr);
     update_zero_and_negative(register_y_);
 }
 
@@ -694,8 +694,8 @@ void Cpu::op_rol_accumulator()
 
 void Cpu::op_rol(AddressingMode mode)
 {
-    uint16_t addr = get_operand_address(mode);
-    uint8_t value = memory_->read8(addr);
+    uint16_t addr  = get_operand_address(mode);
+    uint8_t value  = memory_->read8(addr);
     bool old_carry = get_carry();
     set_carry((value >> 7) & 0x1);
     value <<= 1;
@@ -717,8 +717,8 @@ void Cpu::op_ror_accumulator()
 
 void Cpu::op_ror(AddressingMode mode)
 {
-    uint16_t addr = get_operand_address(mode);
-    uint8_t value = memory_->read8(addr);
+    uint16_t addr  = get_operand_address(mode);
+    uint8_t value  = memory_->read8(addr);
     bool old_carry = get_carry();
     set_carry(value & 0x1);
     value >>= 1;

@@ -35,16 +35,16 @@ class Logger
         return s_logger;
     }
 
-    Logger(const Logger&) = delete;
+    Logger(const Logger&)            = delete;
     Logger& operator=(const Logger&) = delete;
 
   private:
     LogLevel level_;
 
     static constexpr std::string_view COLOR_RESET = "\033[0m";
-    static constexpr std::string_view COLOR_RED = "\033[31m";
+    static constexpr std::string_view COLOR_RED   = "\033[31m";
     static constexpr std::string_view COLOR_GREEN = "\033[32m";
-    static constexpr std::string_view COLOR_GREY = "\033[90m";
+    static constexpr std::string_view COLOR_GREY  = "\033[90m";
 
     Logger()
         : level_(LogLevel::QUIET)

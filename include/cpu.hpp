@@ -47,7 +47,7 @@ class Cpu
     bool get_negative() { return get_flag<FLAG_N>(); }
 
   private:
-    static constexpr uint16_t STACK = 0x0100;
+    static constexpr uint16_t STACK      = 0x0100;
     static constexpr uint8_t STACK_RESET = 0xFD;
 
     static constexpr uint8_t FLAG_C = 0x01;

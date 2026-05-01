@@ -12,10 +12,10 @@
 #include <emscripten.h>
 #endif
 
-constexpr int SCREEN_WIDTH = 32;
+constexpr int SCREEN_WIDTH  = 32;
 constexpr int SCREEN_HEIGHT = 32;
 
-constexpr int SCREEN_WIDTH_SCALE = 10;
+constexpr int SCREEN_WIDTH_SCALE  = 10;
 constexpr int SCREEN_HEIGHT_SCALE = 10;
 
 static std::array<uint32_t, SCREEN_WIDTH * SCREEN_HEIGHT> frame;
@@ -29,14 +29,14 @@ static bool quit = false;
 
 #if __EMSCRIPTEN__
 EM_JS(void, sdl_init_canvas, (int width, int height), {
-    const canvas = document.getElementById('canvas');
-    canvas.width = width;
-    canvas.height = height;
-    canvas.style.width = width + 'px';
-    canvas.style.height = height + 'px';
+    const canvas         = document.getElementById('canvas');
+    canvas.width         = width;
+    canvas.height        = height;
+    canvas.style.width   = width + 'px';
+    canvas.style.height  = height + 'px';
     canvas.style.display = 'block';
 
-    const loading = document.getElementById('loading');
+    const loading         = document.getElementById('loading');
     loading.style.display = 'none';
 });
 #endif
@@ -203,12 +203,12 @@ static bool sdl_read_screen_state(Cpu& cpu,
     for (uint16_t i = 0x0200; i < 0x0600; i++)
     {
         uint8_t color_idx = cpu.memory_->read8(i);
-        uint32_t rgb = color(color_idx);
+        uint32_t rgb      = color(color_idx);
 
         if (frame.at(i - 0x0200) != rgb)
         {
             frame.at(i - 0x0200) = rgb;
-            update = true;
+            update               = true;
         }
     }
 

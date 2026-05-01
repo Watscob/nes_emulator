@@ -32,7 +32,7 @@ struct SDL_WindowDeleter
 };
 
 using SDL_RendererPtr = std::shared_ptr<SDL_Renderer>;
-using SDL_TexturePtr = std::unique_ptr<SDL_Texture, SDL_TextureDeleter>;
-using SDL_WindowPtr = std::unique_ptr<SDL_Window, SDL_WindowDeleter>;
+using SDL_TexturePtr  = std::unique_ptr<SDL_Texture, SDL_TextureDeleter>;
+using SDL_WindowPtr   = std::unique_ptr<SDL_Window, SDL_WindowDeleter>;
 
 #endif /* SDL_UTILS */

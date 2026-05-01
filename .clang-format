@@ -35,11 +35,11 @@ BraceWrapping:
   IndentBraces: false
   SplitEmptyFunction: false
 
-AlignAfterOpenBracket: Align
-AlignConsecutiveAssignments: false
+AlignAfterOpenBracket: true
+AlignConsecutiveAssignments: AcrossComments
 AlignConsecutiveDeclarations: false
 AlignEscapedNewlines: Left
-AlignOperands: Align
+AlignOperands: AlignAfterOperator
 AlignTrailingComments: true
 
 BinPackArguments: false
