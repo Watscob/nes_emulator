@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include "log.hpp"
 
-std::uint8_t Memory::read8(std::uint16_t addr)
+uint8_t Memory::read8(uint16_t addr)
 {
     try
     {
@@ -15,7 +15,7 @@ std::uint8_t Memory::read8(std::uint16_t addr)
     }
 }
 
-void Memory::write8(std::uint16_t addr, std::uint8_t value)
+void Memory::write8(uint16_t addr, uint8_t value)
 {
     try
     {
@@ -27,22 +27,22 @@ void Memory::write8(std::uint16_t addr, std::uint8_t value)
     }
 }
 
-std::uint16_t Memory::read16(std::uint16_t addr)
+uint16_t Memory::read16(uint16_t addr)
 {
-    std::uint16_t lo = static_cast<std::uint16_t>(read8(addr));
-    std::uint16_t hi = static_cast<std::uint16_t>(read8(addr + 1));
+    uint16_t lo = read8(addr);
+    uint16_t hi = read8(addr + 1);
     return (hi << 8u) | lo;
 }
 
-void Memory::write16(std::uint16_t addr, std::uint16_t value)
+void Memory::write16(uint16_t addr, uint16_t value)
 {
-    std::uint8_t hi = static_cast<std::uint8_t>(value >> 8);
-    std::uint8_t lo = static_cast<std::uint8_t>(value & 0xFF);
+    uint8_t hi = static_cast<uint8_t>(value >> 8);
+    uint8_t lo = static_cast<uint8_t>(value & 0xFF);
     write8(addr, lo);
     write8(addr + 1, hi);
 }
 
-void Memory::load(std::uint16_t addr, std::vector<std::uint8_t> data)
+void Memory::load(uint16_t addr, std::vector<uint8_t> data)
 {
     if (addr + data.size() > memory_.size())
     {

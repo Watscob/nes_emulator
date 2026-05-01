@@ -18,7 +18,7 @@ constexpr int SCREEN_HEIGHT = 32;
 constexpr int SCREEN_WIDTH_SCALE = 10;
 constexpr int SCREEN_HEIGHT_SCALE = 10;
 
-static std::array<std::uint32_t, SCREEN_WIDTH * SCREEN_HEIGHT> frame;
+static std::array<uint32_t, SCREEN_WIDTH * SCREEN_HEIGHT> frame;
 
 static std::unique_ptr<SDL_Event> event;
 static SDL_RendererPtr renderer;
@@ -135,7 +135,7 @@ static void sdl_handle_input(Cpu& cpu)
     }
 }
 
-static std::uint32_t color(uint8_t color_idx)
+static uint32_t color(uint8_t color_idx)
 {
     switch (color_idx)
     {
@@ -196,14 +196,14 @@ static std::uint32_t color(uint8_t color_idx)
 }
 
 static bool sdl_read_screen_state(Cpu& cpu,
-                                  std::array<std::uint32_t, SCREEN_WIDTH * SCREEN_HEIGHT>& frame)
+                                  std::array<uint32_t, SCREEN_WIDTH * SCREEN_HEIGHT>& frame)
 {
     bool update = false;
 
-    for (std::uint16_t i = 0x0200; i < 0x0600; i++)
+    for (uint16_t i = 0x0200; i < 0x0600; i++)
     {
-        std::uint8_t color_idx = cpu.memory_->read8(i);
-        std::uint32_t rgb = color(color_idx);
+        uint8_t color_idx = cpu.memory_->read8(i);
+        uint32_t rgb = color(color_idx);
 
         if (frame.at(i - 0x0200) != rgb)
         {
@@ -223,10 +223,7 @@ static void sdl_callback(Cpu& cpu)
     bool updated = sdl_read_screen_state(cpu, frame);
     if (updated)
     {
-        SDL_UpdateTexture(texture.get(),
-                          nullptr,
-                          frame.data(),
-                          SCREEN_WIDTH * sizeof(std::uint32_t));
+        SDL_UpdateTexture(texture.get(), nullptr, frame.data(), SCREEN_WIDTH * sizeof(uint32_t));
 
         SDL_RenderClear(renderer.get());
         SDL_RenderTexture(renderer.get(), texture.get(), nullptr, nullptr);
@@ -260,7 +257,7 @@ int main()
     set_log_level(Logger::LogLevel::DEBUG);
     log_info("NES emulator running ...");
 
-    std::vector<std::uint8_t> rom = {
+    std::vector<uint8_t> rom = {
         0x20, 0x06, 0x06, 0x20, 0x38, 0x06, 0x20, 0x0d, 0x06, 0x20, 0x2a, 0x06, 0x60, 0xa9, 0x02,
         0x85, 0x02, 0xa9, 0x04, 0x85, 0x03, 0xa9, 0x11, 0x85, 0x10, 0xa9, 0x10, 0x85, 0x12, 0xa9,
         0x0f, 0x85, 0x14, 0xa9, 0x04, 0x85, 0x11, 0x85, 0x13, 0x85, 0x15, 0x60, 0xa5, 0xfe, 0x85,

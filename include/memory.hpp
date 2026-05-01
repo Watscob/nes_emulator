@@ -15,18 +15,18 @@ class Memory
 
     ~Memory() = default;
 
-    std::uint8_t read8(std::uint16_t addr);
-    void write8(std::uint16_t addr, std::uint8_t value);
+    uint8_t read8(uint16_t addr);
+    void write8(uint16_t addr, uint8_t value);
 
-    std::uint16_t read16(std::uint16_t addr);
-    void write16(std::uint16_t addr, std::uint16_t value);
+    uint16_t read16(uint16_t addr);
+    void write16(uint16_t addr, uint16_t value);
 
-    void load(std::uint16_t addr, std::vector<std::uint8_t> mem);
+    void load(uint16_t addr, std::vector<uint8_t> mem);
 
   private:
-    static constexpr std::uint32_t RAM_SIZE = 0x10000;
+    static constexpr uint32_t RAM_SIZE = 0x10000;
 
-    std::array<std::uint8_t, RAM_SIZE> memory_;
+    std::array<uint8_t, RAM_SIZE> memory_;
 };
 
 #endif /* MEMORY_HPP */

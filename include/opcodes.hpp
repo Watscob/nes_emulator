@@ -22,8 +22,8 @@ enum class AddressingMode
 struct OpCode
 {
     std::string_view name;
-    std::uint8_t len;
-    std::uint8_t cycles;
+    uint8_t len;
+    uint8_t cycles;
     AddressingMode mode;
 };
 

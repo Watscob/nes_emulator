@@ -11,12 +11,12 @@
 class Cpu
 {
   public:
-    std::uint8_t register_a_;
-    std::uint8_t register_x_;
-    std::uint8_t register_y_;
-    std::uint8_t status_;
-    std::uint16_t program_counter_;
-    std::uint8_t stack_pointer_;
+    uint8_t register_a_;
+    uint8_t register_x_;
+    uint8_t register_y_;
+    uint8_t status_;
+    uint16_t program_counter_;
+    uint8_t stack_pointer_;
     std::unique_ptr<Memory> memory_;
 
     Cpu()
@@ -32,8 +32,8 @@ class Cpu
 
     ~Cpu() = default;
 
-    void load_and_run(std::vector<std::uint8_t> rom, std::uint16_t start_addr = 0x8000);
-    void load(std::vector<std::uint8_t> rom, std::uint16_t start_addr = 0x8000);
+    void load_and_run(std::vector<uint8_t> rom, uint16_t start_addr = 0x8000);
+    void load(std::vector<uint8_t> rom, uint16_t start_addr = 0x8000);
     void reset();
     bool execute();
     bool execute_with_callback(std::function<void(Cpu&)> callback);
@@ -47,24 +47,24 @@ class Cpu
     bool get_negative() { return get_flag<FLAG_N>(); }
 
   private:
-    static constexpr std::uint16_t STACK = 0x0100;
-    static constexpr std::uint8_t STACK_RESET = 0xFD;
+    static constexpr uint16_t STACK = 0x0100;
+    static constexpr uint8_t STACK_RESET = 0xFD;
 
-    static constexpr std::uint8_t FLAG_C = 0x01;
-    static constexpr std::uint8_t FLAG_Z = 0x02;
-    static constexpr std::uint8_t FLAG_I = 0x04;
-    static constexpr std::uint8_t FLAG_D = 0x08;
-    static constexpr std::uint8_t FLAG_B = 0x10;
-    static constexpr std::uint8_t FLAG_V = 0x40;
-    static constexpr std::uint8_t FLAG_N = 0x80;
+    static constexpr uint8_t FLAG_C = 0x01;
+    static constexpr uint8_t FLAG_Z = 0x02;
+    static constexpr uint8_t FLAG_I = 0x04;
+    static constexpr uint8_t FLAG_D = 0x08;
+    static constexpr uint8_t FLAG_B = 0x10;
+    static constexpr uint8_t FLAG_V = 0x40;
+    static constexpr uint8_t FLAG_N = 0x80;
 
-    template <std::uint8_t FLAG>
+    template <uint8_t FLAG>
     void set_flag(bool set)
     {
         status_ = set ? (status_ | FLAG) : (status_ & ~FLAG);
     }
 
-    template <std::uint8_t FLAG>
+    template <uint8_t FLAG>
     bool get_flag()
     {
         return status_ & FLAG;
@@ -78,20 +78,20 @@ class Cpu
     void set_overflow(bool set) { set_flag<FLAG_V>(set); }
     void set_negative(bool set) { set_flag<FLAG_N>(set); }
 
-    void update_zero_and_negative(std::uint8_t value)
+    void update_zero_and_negative(uint8_t value)
     {
         set_zero(value == 0);
         set_negative(value & 0x80);
     }
 
-    std::uint16_t get_operand_address(AddressingMode mode);
+    uint16_t get_operand_address(AddressingMode mode);
 
-    void stack_push8(std::uint8_t data);
-    std::uint8_t stack_pop8();
-    void stack_push16(std::uint16_t data);
-    std::uint16_t stack_pop16();
+    void stack_push8(uint8_t data);
+    uint8_t stack_pop8();
+    void stack_push16(uint16_t data);
+    uint16_t stack_pop16();
 
-    void add_to_register_a(std::uint8_t value);
+    void add_to_register_a(uint8_t value);
 
     void op_adc(AddressingMode mode);
     void op_and(AddressingMode mode);
@@ -99,7 +99,7 @@ class Cpu
     void op_asl(AddressingMode mode);
     void op_branch(bool condition);
     void op_bit(AddressingMode mode);
-    void op_cmp(AddressingMode mode, std::uint8_t compare_with);
+    void op_cmp(AddressingMode mode, uint8_t compare_with);
     void op_dec(AddressingMode mode);
     void op_dex();
     void op_dey();
