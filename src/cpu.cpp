@@ -667,7 +667,7 @@ void Cpu::op_ora(AddressingMode mode)
 void Cpu::op_php()
 {
     set_break(1);
-    stack_push8(status_);
+    stack_push8(static_cast<uint8_t>(status_.to_ulong()));
 }
 
 void Cpu::op_pla()
