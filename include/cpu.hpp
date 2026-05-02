@@ -3,53 +3,38 @@
 
 #include <bitset>
 #include <cstdint>
-#include <functional>
 #include <memory>
-#include <vector>
-#include "memory.hpp"
 
 enum class AddressingMode;
+class Memory;
 
 class Cpu
 {
   public:
-    uint8_t register_a_;
-    uint8_t register_x_;
-    uint8_t register_y_;
-    std::bitset<8> status_;
-    uint16_t program_counter_;
-    uint8_t stack_pointer_;
-    std::unique_ptr<Memory> memory_;
-
-    Cpu()
-        : register_a_(0u)
-        , register_x_(0u)
-        , register_y_(0u)
-        , status_(0x24)
-        , program_counter_(0x8000)
-        , stack_pointer_(STACK_RESET)
-        , memory_(std::make_unique<Memory>())
-    {
-    }
-
+    Cpu() = delete;
+    Cpu(std::shared_ptr<Memory> memory);
     ~Cpu() = default;
 
-    void load_and_run(std::vector<uint8_t> rom, uint16_t start_addr = 0x8000);
-    void load(std::vector<uint8_t> rom, uint16_t start_addr = 0x8000);
     void reset();
-    bool execute();
-    bool execute_with_callback(std::function<void(Cpu&)> callback);
+    bool step();
 
-    bool get_carry() { return status_.test(FLAG_C_POS); }
-    bool get_zero() { return status_.test(FLAG_Z_POS); }
-    bool get_interrupt() { return status_.test(FLAG_I_POS); }
-    bool get_decimal() { return status_.test(FLAG_D_POS); }
-    bool get_break() { return status_.test(FLAG_B_POS); }
-    bool get_overflow() { return status_.test(FLAG_V_POS); }
-    bool get_negative() { return status_.test(FLAG_N_POS); }
+    constexpr bool get_carry() { return status_.test(FLAG_C_POS); }
+    constexpr bool get_zero() { return status_.test(FLAG_Z_POS); }
+    constexpr bool get_interrupt() { return status_.test(FLAG_I_POS); }
+    constexpr bool get_decimal() { return status_.test(FLAG_D_POS); }
+    constexpr bool get_break() { return status_.test(FLAG_B_POS); }
+    constexpr bool get_overflow() { return status_.test(FLAG_V_POS); }
+    constexpr bool get_negative() { return status_.test(FLAG_N_POS); }
+
+    constexpr uint8_t get_register_a() { return register_a_; }
+    constexpr uint8_t get_register_x() { return register_x_; }
+    constexpr uint8_t get_register_y() { return register_y_; }
+    constexpr uint8_t get_status() { return static_cast<uint8_t>(status_.to_ulong()); }
+    constexpr uint16_t get_program_counter() { return program_counter_; }
+    constexpr uint8_t get_stack_pointer() { return stack_pointer_; }
 
   private:
-    static constexpr uint16_t STACK      = 0x0100;
+    static constexpr uint16_t STACK_BASE = 0x0100;
     static constexpr uint8_t STACK_RESET = 0xFD;
 
     static constexpr uint8_t FLAG_C_POS = 0;
@@ -60,15 +45,23 @@ class Cpu
     static constexpr uint8_t FLAG_V_POS = 6;
     static constexpr uint8_t FLAG_N_POS = 7;
 
-    void set_carry(bool set) { status_.set(FLAG_C_POS, set); }
-    void set_zero(bool set) { status_.set(FLAG_Z_POS, set); }
-    void set_interrupt(bool set) { status_.set(FLAG_I_POS, set); }
-    void set_decimal(bool set) { status_.set(FLAG_D_POS, set); }
-    void set_break(bool set) { status_.set(FLAG_B_POS, set); }
-    void set_overflow(bool set) { status_.set(FLAG_V_POS, set); }
-    void set_negative(bool set) { status_.set(FLAG_N_POS, set); }
+    uint8_t register_a_;
+    uint8_t register_x_;
+    uint8_t register_y_;
+    std::bitset<8> status_;
+    uint16_t program_counter_;
+    uint8_t stack_pointer_;
+    std::shared_ptr<Memory> memory_;
 
-    void update_zero_and_negative(uint8_t value)
+    constexpr void set_carry(bool set) { status_.set(FLAG_C_POS, set); }
+    constexpr void set_zero(bool set) { status_.set(FLAG_Z_POS, set); }
+    constexpr void set_interrupt(bool set) { status_.set(FLAG_I_POS, set); }
+    constexpr void set_decimal(bool set) { status_.set(FLAG_D_POS, set); }
+    constexpr void set_break(bool set) { status_.set(FLAG_B_POS, set); }
+    constexpr void set_overflow(bool set) { status_.set(FLAG_V_POS, set); }
+    constexpr void set_negative(bool set) { status_.set(FLAG_N_POS, set); }
+
+    constexpr void update_zero_and_negative(uint8_t value)
     {
         set_zero(value == 0);
         set_negative(value & 0x80);

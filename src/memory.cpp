@@ -2,6 +2,11 @@
 #include <stdexcept>
 #include "log.hpp"
 
+Memory::Memory()
+    : memory_(RAM_SIZE)
+{
+}
+
 uint8_t Memory::read8(uint16_t addr)
 {
     try
