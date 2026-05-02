@@ -1,19 +1,3 @@
-add_library(
-    nesemulator_lib
-    STATIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/cpu.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/memory.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/nes.cpp
-)
-
-target_include_directories(
-    nesemulator_lib
-    PUBLIC
-    ${CMAKE_SOURCE_DIR}/include
-    PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
-)
-
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     find_package(SDL3 REQUIRED)
 endif()
@@ -21,6 +5,12 @@ endif()
 add_executable(
     nesemulator
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+)
+
+target_include_directories(
+    nesemulator
+    PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_link_libraries(
