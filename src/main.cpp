@@ -1,9 +1,9 @@
 #include <array>
+#include <bus.hpp>
 #include <cstdint>
 #include <cstring>
 #include <ctime>
 #include <log.hpp>
-#include <memory.hpp>
 #include <memory>
 #include <nes.hpp>
 #include <vector>
@@ -118,16 +118,16 @@ static void sdl_handle_input(Nes& nes)
             switch (event->key.key)
             {
             case SDLK_W:
-                nes.get_memory()->write8(0xFF, 0x77);
+                nes.get_bus()->write8(0xFF, 0x77);
                 break;
             case SDLK_S:
-                nes.get_memory()->write8(0xFF, 0x73);
+                nes.get_bus()->write8(0xFF, 0x73);
                 break;
             case SDLK_A:
-                nes.get_memory()->write8(0xFF, 0x61);
+                nes.get_bus()->write8(0xFF, 0x61);
                 break;
             case SDLK_D:
-                nes.get_memory()->write8(0xFF, 0x64);
+                nes.get_bus()->write8(0xFF, 0x64);
                 break;
             default:
                 break;
@@ -203,7 +203,7 @@ static bool sdl_read_screen_state(Nes& nes,
 
     for (uint16_t i = 0x0200; i < 0x0600; i++)
     {
-        uint8_t color_idx = nes.get_memory()->read8(i);
+        uint8_t color_idx = nes.get_bus()->read8(i);
         uint32_t rgb      = color(color_idx);
 
         if (frame.at(i - 0x0200) != rgb)
@@ -219,7 +219,7 @@ static bool sdl_read_screen_state(Nes& nes,
 static void sdl_callback(Nes& nes)
 {
     sdl_handle_input(nes);
-    nes.get_memory()->write8(0x00FE, std::rand() % 16 + 1);
+    nes.get_bus()->write8(0x00FE, std::rand() % 16 + 1);
 
     bool updated = sdl_read_screen_state(nes, frame);
     if (updated)

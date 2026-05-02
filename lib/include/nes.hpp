@@ -6,7 +6,7 @@
 #include <vector>
 
 class Cpu;
-class Memory;
+class Bus;
 
 class Nes
 {
@@ -20,11 +20,11 @@ class Nes
     void reset();
     bool step();
 
-    std::shared_ptr<Memory> get_memory() { return memory_; }
+    std::shared_ptr<Bus> get_bus() { return bus_; }
     std::shared_ptr<Cpu> get_cpu() { return cpu_; }
 
   private:
-    std::shared_ptr<Memory> memory_;
+    std::shared_ptr<Bus> bus_;
     std::shared_ptr<Cpu> cpu_;
     std::function<void(Nes&)> callback_;
 };

@@ -1,6 +1,6 @@
 #include "nes.hpp"
+#include "bus.hpp"
 #include "cpu.hpp"
-#include "memory.hpp"
 
 Nes::Nes()
     : Nes(nullptr)
@@ -8,8 +8,8 @@ Nes::Nes()
 }
 
 Nes::Nes(std::function<void(Nes&)> callback)
-    : memory_(std::make_shared<Memory>())
-    , cpu_(std::make_shared<Cpu>(memory_))
+    : bus_(std::make_shared<Bus>())
+    , cpu_(std::make_shared<Cpu>(bus_))
     , callback_(callback)
 {
 }
@@ -23,8 +23,8 @@ void Nes::load_and_run(std::vector<uint8_t> rom, uint16_t start_addr)
 
 void Nes::load(std::vector<uint8_t> rom, uint16_t start_addr)
 {
-    memory_->load(start_addr, rom);
-    memory_->write16(0xFFFC, start_addr);
+    bus_->load(start_addr, rom);
+    bus_->write16(0xFFFC, start_addr);
 }
 
 void Nes::reset()

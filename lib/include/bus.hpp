@@ -1,14 +1,14 @@
-#ifndef MEMORY_HPP
-#define MEMORY_HPP
+#ifndef BUS_HPP
+#define BUS_HPP
 
 #include <cstdint>
 #include <vector>
 
-class Memory
+class Bus
 {
   public:
-    Memory();
-    ~Memory() = default;
+    Bus();
+    ~Bus() = default;
 
     uint8_t read8(uint16_t addr);
     void write8(uint16_t addr, uint8_t value);
@@ -21,7 +21,7 @@ class Memory
   private:
     static constexpr uint32_t RAM_SIZE = 0x10000;
 
-    std::vector<uint8_t> memory_;
+    std::vector<uint8_t> ram_;
 };
 
-#endif /* MEMORY_HPP */
+#endif /* BUS_HPP */

@@ -1,17 +1,17 @@
-#include "memory.hpp"
+#include "bus.hpp"
 #include <stdexcept>
 #include "log.hpp"
 
-Memory::Memory()
-    : memory_(RAM_SIZE)
+Bus::Bus()
+    : ram_(RAM_SIZE)
 {
 }
 
-uint8_t Memory::read8(uint16_t addr)
+uint8_t Bus::read8(uint16_t addr)
 {
     try
     {
-        return memory_.at(addr);
+        return ram_.at(addr);
     }
     catch (const std::out_of_range&)
     {
@@ -20,11 +20,11 @@ uint8_t Memory::read8(uint16_t addr)
     }
 }
 
-void Memory::write8(uint16_t addr, uint8_t value)
+void Bus::write8(uint16_t addr, uint8_t value)
 {
     try
     {
-        memory_.at(addr) = value;
+        ram_.at(addr) = value;
     }
     catch (const std::out_of_range&)
     {
@@ -32,14 +32,14 @@ void Memory::write8(uint16_t addr, uint8_t value)
     }
 }
 
-uint16_t Memory::read16(uint16_t addr)
+uint16_t Bus::read16(uint16_t addr)
 {
     uint16_t lo = read8(addr);
     uint16_t hi = read8(addr + 1);
     return (hi << 8u) | lo;
 }
 
-void Memory::write16(uint16_t addr, uint16_t value)
+void Bus::write16(uint16_t addr, uint16_t value)
 {
     uint8_t hi = static_cast<uint8_t>(value >> 8);
     uint8_t lo = static_cast<uint8_t>(value & 0xFF);
@@ -47,13 +47,13 @@ void Memory::write16(uint16_t addr, uint16_t value)
     write8(addr + 1, hi);
 }
 
-void Memory::load(uint16_t addr, std::vector<uint8_t> data)
+void Bus::load(uint16_t addr, std::vector<uint8_t> data)
 {
-    if (addr + data.size() > memory_.size())
+    if (addr + data.size() > ram_.size())
     {
         log_error("Cannot load data of size {} at addr {}.", data.size(), addr);
         return;
     }
 
-    std::copy(data.begin(), data.end(), memory_.begin() + addr);
+    std::copy(data.begin(), data.end(), ram_.begin() + addr);
 }
