@@ -12,7 +12,7 @@ class Cpu
 {
   public:
     Cpu() = delete;
-    Cpu(std::shared_ptr<Bus> bus);
+    explicit Cpu(std::shared_ptr<Bus> bus);
     ~Cpu() = default;
 
     void reset();

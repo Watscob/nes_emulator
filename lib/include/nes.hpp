@@ -5,18 +5,20 @@
 #include <memory>
 #include <vector>
 
+class Cartridge;
 class Cpu;
 class Bus;
 
 class Nes
 {
   public:
-    Nes();
-    explicit Nes(std::function<void(Nes&)> callback);
+    Nes() = delete;
+    explicit Nes(const std::string& path);
+    explicit Nes(std::function<void(Nes&)> callback, const std::string& path);
+    explicit Nes(std::vector<uint8_t> raw);
+    explicit Nes(std::function<void(Nes&)> callback, std::vector<uint8_t> raw);
     ~Nes() = default;
 
-    void load_and_run(std::vector<uint8_t> rom, uint16_t start_addr = 0x8000);
-    void load(std::vector<uint8_t> rom, uint16_t start_addr = 0x8000);
     void reset();
     bool step();
 
@@ -24,6 +26,7 @@ class Nes
     std::shared_ptr<Cpu> get_cpu() { return cpu_; }
 
   private:
+    std::shared_ptr<Cartridge> cartridge_;
     std::shared_ptr<Bus> bus_;
     std::shared_ptr<Cpu> cpu_;
     std::function<void(Nes&)> callback_;
