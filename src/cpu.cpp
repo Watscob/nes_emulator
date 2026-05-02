@@ -1,6 +1,7 @@
 #include "cpu.hpp"
 #include <stdexcept>
 #include "log.hpp"
+#include "opcodes.hpp"
 
 void Cpu::load_and_run(std::vector<uint8_t> rom, uint16_t start_addr)
 {

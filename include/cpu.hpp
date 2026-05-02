@@ -7,7 +7,8 @@
 #include <memory>
 #include <vector>
 #include "memory.hpp"
-#include "opcodes.hpp"
+
+enum class AddressingMode;
 
 class Cpu
 {
