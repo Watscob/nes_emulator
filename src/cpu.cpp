@@ -1,19 +1,18 @@
 #include "cpu.hpp"
 #include <stdexcept>
 #include "log.hpp"
+#include "memory.hpp"
 #include "opcodes.hpp"
 
-void Cpu::load_and_run(std::vector<uint8_t> rom, uint16_t start_addr)
+Cpu::Cpu(std::shared_ptr<Memory> memory)
+    : register_a_(0u)
+    , register_x_(0u)
+    , register_y_(0u)
+    , status_(0x24)
+    , program_counter_(0x8000)
+    , stack_pointer_(STACK_RESET)
+    , memory_(memory)
 {
-    load(rom, start_addr);
-    reset();
-    while (execute()) {}
-}
-
-void Cpu::load(std::vector<uint8_t> rom, uint16_t start_addr)
-{
-    memory_->load(start_addr, rom);
-    memory_->write16(0xFFFC, start_addr);
 }
 
 void Cpu::reset()
@@ -27,15 +26,8 @@ void Cpu::reset()
     program_counter_ = memory_->read16(0xFFFC);
 }
 
-bool Cpu::execute()
+bool Cpu::step()
 {
-    return execute_with_callback([](Cpu&) {});
-}
-
-bool Cpu::execute_with_callback(std::function<void(Cpu&)> callback)
-{
-    callback(*this);
-
     uint8_t code = memory_->read8(program_counter_++);
     OpCode opcode;
 
@@ -452,14 +444,14 @@ uint16_t Cpu::get_operand_address(AddressingMode mode)
 
 void Cpu::stack_push8(uint8_t data)
 {
-    memory_->write8(STACK + stack_pointer_, data);
+    memory_->write8(STACK_BASE + stack_pointer_, data);
     stack_pointer_--;
 }
 
 uint8_t Cpu::stack_pop8()
 {
     stack_pointer_++;
-    return memory_->read8(STACK + stack_pointer_);
+    return memory_->read8(STACK_BASE + stack_pointer_);
 }
 
 void Cpu::stack_push16(uint16_t data)

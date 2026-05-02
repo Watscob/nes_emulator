@@ -2,10 +2,11 @@
 #include <cstdint>
 #include <cstring>
 #include <ctime>
+#include <log.hpp>
+#include <memory.hpp>
 #include <memory>
+#include <nes.hpp>
 #include <vector>
-#include "cpu.hpp"
-#include "log.hpp"
 #include "sdl_utils.hpp"
 
 #if __EMSCRIPTEN__
@@ -104,7 +105,7 @@ static int sdl_init()
     return 0;
 }
 
-static void sdl_handle_input(Cpu& cpu)
+static void sdl_handle_input(Nes& nes)
 {
     while (SDL_PollEvent(event.get()))
     {
@@ -117,16 +118,16 @@ static void sdl_handle_input(Cpu& cpu)
             switch (event->key.key)
             {
             case SDLK_W:
-                cpu.memory_->write8(0xFF, 0x77);
+                nes.get_memory()->write8(0xFF, 0x77);
                 break;
             case SDLK_S:
-                cpu.memory_->write8(0xFF, 0x73);
+                nes.get_memory()->write8(0xFF, 0x73);
                 break;
             case SDLK_A:
-                cpu.memory_->write8(0xFF, 0x61);
+                nes.get_memory()->write8(0xFF, 0x61);
                 break;
             case SDLK_D:
-                cpu.memory_->write8(0xFF, 0x64);
+                nes.get_memory()->write8(0xFF, 0x64);
                 break;
             default:
                 break;
@@ -195,14 +196,14 @@ static uint32_t color(uint8_t color_idx)
     }
 }
 
-static bool sdl_read_screen_state(Cpu& cpu,
+static bool sdl_read_screen_state(Nes& nes,
                                   std::array<uint32_t, SCREEN_WIDTH * SCREEN_HEIGHT>& frame)
 {
     bool update = false;
 
     for (uint16_t i = 0x0200; i < 0x0600; i++)
     {
-        uint8_t color_idx = cpu.memory_->read8(i);
+        uint8_t color_idx = nes.get_memory()->read8(i);
         uint32_t rgb      = color(color_idx);
 
         if (frame.at(i - 0x0200) != rgb)
@@ -215,12 +216,12 @@ static bool sdl_read_screen_state(Cpu& cpu,
     return update;
 }
 
-static void sdl_callback(Cpu& cpu)
+static void sdl_callback(Nes& nes)
 {
-    sdl_handle_input(cpu);
-    cpu.memory_->write8(0x00FE, std::rand() % 16 + 1);
+    sdl_handle_input(nes);
+    nes.get_memory()->write8(0x00FE, std::rand() % 16 + 1);
 
-    bool updated = sdl_read_screen_state(cpu, frame);
+    bool updated = sdl_read_screen_state(nes, frame);
     if (updated)
     {
         SDL_UpdateTexture(texture.get(), nullptr, frame.data(), SCREEN_WIDTH * sizeof(uint32_t));
@@ -234,7 +235,7 @@ static void sdl_callback(Cpu& cpu)
 #if __EMSCRIPTEN__
 static void emscripten_loop_wrapper(void* arg)
 {
-    Cpu* nes = static_cast<Cpu*>(arg);
+    Nes* nes = static_cast<Nes*>(arg);
     if (quit)
     {
         emscripten_cancel_main_loop();
@@ -243,7 +244,7 @@ static void emscripten_loop_wrapper(void* arg)
 
     for (int i = 0; i < 100; i++)
     {
-        if (!nes->execute_with_callback(*sdl_callback))
+        if (!nes->step())
         {
             quit = true;
             break;
@@ -282,7 +283,7 @@ int main()
 
     std::srand(std::time({}));
 
-    Cpu nes;
+    Nes nes(sdl_callback);
     nes.load(rom, 0x0600);
     nes.reset();
 
@@ -292,7 +293,7 @@ int main()
 #if __EMSCRIPTEN__
     emscripten_set_main_loop_arg(&emscripten_loop_wrapper, &nes, 0, true);
 #else
-    while (!quit && nes.execute_with_callback(sdl_callback)) {}
+    while (!quit && nes.step()) {}
 #endif
 
     log_info("NES emulator exiting ...");

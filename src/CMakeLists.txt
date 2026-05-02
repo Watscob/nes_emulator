@@ -3,6 +3,7 @@ add_library(
     STATIC
     ${CMAKE_CURRENT_SOURCE_DIR}/cpu.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/memory.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/nes.cpp
 )
 
 target_include_directories(
