@@ -47,7 +47,7 @@ while [ : ]; do
 done
 
 # Always run clang-format
-find include src tests -name "*.hpp" -o -name "*.cpp" | xargs clang-format -i
+find src tests lib -name "*.hpp" -o -name "*.cpp" | xargs clang-format -i
 
 if $CLEAN; then
     rm -rf $BUILD_DIR

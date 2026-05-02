@@ -17,5 +17,6 @@ add_compile_options(
     -flto
 )
 
+add_subdirectory(lib)
 add_subdirectory(src)
 add_subdirectory(tests)
