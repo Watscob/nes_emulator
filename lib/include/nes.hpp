@@ -12,13 +12,11 @@ class Bus;
 class Nes
 {
   public:
-    Nes() = delete;
-    explicit Nes(const std::string& path);
-    explicit Nes(std::function<void(Nes&)> callback, const std::string& path);
-    explicit Nes(std::vector<uint8_t> raw);
-    explicit Nes(std::function<void(Nes&)> callback, std::vector<uint8_t> raw);
+    explicit Nes();
+    explicit Nes(std::function<void(Nes&)> callback);
     ~Nes() = default;
 
+    bool load_rom(std::vector<uint8_t> raw);
     void reset();
     bool step();
 

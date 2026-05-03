@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <cstring>
 #include <ctime>
+#include <fstream>
+#include <iterator>
 #include <log.hpp>
 #include <memory>
 #include <nes.hpp>
@@ -251,16 +253,51 @@ static void emscripten_loop_wrapper(void* arg)
         }
     }
 }
+#else
+std::vector<uint8_t> read_rom_file(const std::string& path)
+{
+    std::ifstream file(path, std::ios::in | std::ios::binary);
+
+    if (!file)
+    {
+        log_error("Cannot open file {}.", path);
+        return std::vector<uint8_t>();
+    }
+
+    std::vector<uint8_t> rom((std::istreambuf_iterator<char>(file)),
+                             std::istreambuf_iterator<char>());
+    return rom;
+}
 #endif
 
+#if __EMSCRIPTEN__
 int main()
+#else
+int main(int argc, char* argv[])
+#endif
 {
     set_log_level(Logger::LogLevel::DEBUG);
     log_info("NES emulator running ...");
 
     std::srand(std::time({}));
 
-    Nes nes(sdl_callback, "roms/snake.nes");
+    Nes nes(sdl_callback);
+
+#if __EMSCRIPTEN__
+    // TODO
+    log_error("WASM version with ROM files is not yet implemented.");
+    return 1;
+#else
+    if (argc < 2)
+    {
+        log_error("Usage: {} <rom_file>", argv[0]);
+        return 1;
+    }
+
+    if (!nes.load_rom(read_rom_file(std::string(argv[1]))))
+        return 1;
+#endif
+
     nes.reset();
 
     if (sdl_init() != 0)

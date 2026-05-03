@@ -3,30 +3,22 @@
 #include "cartridge.hpp"
 #include "cpu.hpp"
 
-Nes::Nes(const std::string& path)
-    : Nes(nullptr, path)
+Nes::Nes()
+    : Nes(nullptr)
 {
 }
 
-Nes::Nes(std::function<void(Nes&)> callback, const std::string& path)
-    : cartridge_(std::make_shared<Cartridge>(path))
+Nes::Nes(std::function<void(Nes&)> callback)
+    : cartridge_(std::make_shared<Cartridge>())
     , bus_(std::make_shared<Bus>(cartridge_))
     , cpu_(std::make_shared<Cpu>(bus_))
     , callback_(callback)
 {
 }
 
-Nes::Nes(std::vector<uint8_t> raw)
-    : Nes(nullptr, raw)
+bool Nes::load_rom(std::vector<uint8_t> raw)
 {
-}
-
-Nes::Nes(std::function<void(Nes&)> callback, std::vector<uint8_t> raw)
-    : cartridge_(std::make_shared<Cartridge>(raw))
-    , bus_(std::make_shared<Bus>(cartridge_))
-    , cpu_(std::make_shared<Cpu>(bus_))
-    , callback_(callback)
-{
+    return cartridge_->load_rom(raw);
 }
 
 void Nes::reset()

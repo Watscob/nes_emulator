@@ -30,7 +30,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     target_link_options(
         nesemulator
         PRIVATE
-        "-fwasm-exceptions"
         "-s WASM=1"
         "--use-port=sdl3"
         "-s EXPORTED_FUNCTIONS=['_main']"

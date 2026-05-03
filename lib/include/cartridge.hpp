@@ -16,10 +16,10 @@ enum class Mirroring
 class Cartridge
 {
   public:
-    Cartridge() = delete;
-    explicit Cartridge(const std::string& path);
-    explicit Cartridge(std::vector<uint8_t> raw);
+    explicit Cartridge() {}
     ~Cartridge() = default;
+
+    bool load_rom(std::vector<uint8_t> raw);
 
     uint8_t read_prg(uint16_t addr);
     uint8_t read_chr(uint16_t addr);

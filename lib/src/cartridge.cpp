@@ -1,34 +1,25 @@
 #include "cartridge.hpp"
-#include <fstream>
-#include <iterator>
-#include <stdexcept>
 #include "log.hpp"
 
-Cartridge::Cartridge(const std::string& path)
+bool Cartridge::load_rom(std::vector<uint8_t> raw)
 {
-    std::ifstream file(path, std::ios::in | std::ios::binary);
+    if (!std::equal(NES_TAG.begin(), NES_TAG.end(), raw.begin()))
+    {
+        log_error("Invalid NES tag.");
+        return false;
+    }
 
-    if (!file)
-        throw std::runtime_error("Cannot open file " + path + ".");
+    mapper_ = (raw.at(7) & 0xF0) | (raw.at(6) >> 4);
 
-    if (file.peek() == std::ifstream::traits_type::eof())
-        throw std::runtime_error("Empty file " + path + ".");
-
-    std::vector<uint8_t> header(HEADER_SIZE);
-    if (!file.read(reinterpret_cast<char*>(header.data()), HEADER_SIZE))
-        throw std::runtime_error("Failed to read ROM header.");
-
-    if (!std::equal(NES_TAG.begin(), NES_TAG.end(), header.begin()))
-        throw std::runtime_error("Invalid NES tag.");
-
-    mapper_ = (header.at(7) & 0xF0) | (header.at(6) >> 4);
-
-    uint8_t ines_version = (header.at(7) >> 2) & 0x3;
+    uint8_t ines_version = (raw.at(7) >> 2) & 0x3;
     if (ines_version != 0)
-        throw std::runtime_error("NES2.0 format is not supported.");
+    {
+        log_error("NES2.0 format is not supported.");
+        return false;
+    }
 
-    bool four_screen        = (header.at(6) & 0x8) != 0;
-    bool vertical_mirroring = (header.at(6) & 0x1) != 0;
+    bool four_screen        = (raw.at(6) & 0x8) != 0;
+    bool vertical_mirroring = (raw.at(6) & 0x1) != 0;
 
     if (four_screen)
         screen_mirroring_ = Mirroring::FOUR_SCREEN;
@@ -37,37 +28,41 @@ Cartridge::Cartridge(const std::string& path)
     else
         screen_mirroring_ = Mirroring::HORIZONTAL;
 
-    bool trainer = (header.at(6) & 0x4) != 0;
+    bool trainer = (raw.at(6) & 0x4) != 0;
     if (trainer)
-        throw std::runtime_error("Trainer is not supported.");
+    {
+        log_error("Trainer is not supported.");
+        return false;
+    }
 
-    uint8_t banks = header.at(4);
+    uint8_t banks = raw.at(4);
     if (!banks)
-        throw std::runtime_error("ROM has no PRG-ROM banks.");
+    {
+        log_error("ROM has no PRG-ROM banks.");
+        return false;
+    }
 
-    uint8_t vbanks = header.at(5);
+    uint8_t vbanks = raw.at(5);
 
-    prg_rom_.resize(banks * PRG_ROM_PAGE_SIZE);
-    if (!file.read(reinterpret_cast<char*>(prg_rom_.data()), banks * PRG_ROM_PAGE_SIZE))
-        throw std::runtime_error("Failed to read PRG-ROM from file.");
+    uint16_t prg_size   = banks * PRG_ROM_PAGE_SIZE;
+    uint16_t chr_size   = vbanks * CHR_ROM_PAGE_SIZE;
+    uint16_t total_size = HEADER_SIZE + prg_size + chr_size;
+
+    if (total_size > raw.size())
+    {
+        log_error("Total size of the ROM does not match header.");
+        return false;
+    }
+
+    prg_rom_.assign(raw.begin() + HEADER_SIZE, raw.begin() + HEADER_SIZE + prg_size);
 
     if (vbanks)
     {
-        chr_rom_.resize(vbanks * CHR_ROM_PAGE_SIZE);
-        if (!file.read(reinterpret_cast<char*>(chr_rom_.data()), vbanks * CHR_ROM_PAGE_SIZE))
-            throw std::runtime_error("Failed to read CHR-ROM from file.");
+        chr_rom_.assign(raw.begin() + HEADER_SIZE + prg_size,
+                        raw.begin() + HEADER_SIZE + prg_size + chr_size);
     }
-}
 
-Cartridge::Cartridge(std::vector<uint8_t> raw)
-    : mapper_(0)
-    , screen_mirroring_(Mirroring::VERTICAL)
-{
-    prg_rom_ = raw;
-    prg_rom_.resize(PRG_ROM_PAGE_SIZE);
-    prg_rom_.at(0x3FFC) = 0x00;
-    prg_rom_.at(0x3FFD) = 0x80;
-    // TODO BETTER, CREATE PSEUDO ROM FILE AND PARSE WITH THE OTHER CONSTRUCTOR
+    return true;
 }
 
 uint8_t Cartridge::read_prg(uint16_t addr)
