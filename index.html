@@ -22,13 +22,12 @@
     </style>
   </head>
   <body>
-    <div id="loading">Loading emulator ...</div>
+    <!--<div id="loading">Loading emulator ...</div>-->
     <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
-    <script type='text/javascript'>
-        var Module = {
-            canvas: (function() { return document.getElementById('canvas'); })()
-        };
-    </script>
+    <input type="file" id="romFile" accept=".nes,.rom"/>
+    <button onclick="loadRomFromFile()">Load ROM</button>
+    <button onclick="startEmulator()">Run</button>
     <script src="build/src/nesemulator.js"></script>
+    <script src="app.js"></script>
   </body>
 </html>

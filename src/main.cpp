@@ -1,37 +1,44 @@
-#include <array>
 #include <bus.hpp>
 #include <cstdint>
 #include <cstring>
 #include <ctime>
 #include <fstream>
+#include <functional>
 #include <iterator>
 #include <log.hpp>
 #include <memory>
 #include <nes.hpp>
 #include <vector>
-#include "sdl_utils.hpp"
+#include "sdl.hpp"
 
 #if __EMSCRIPTEN__
 #include <emscripten.h>
+#include <emscripten/bind.h>
 #endif
 
 constexpr int SCREEN_WIDTH  = 32;
 constexpr int SCREEN_HEIGHT = 32;
 
-constexpr int SCREEN_WIDTH_SCALE  = 10;
-constexpr int SCREEN_HEIGHT_SCALE = 10;
+static bool running = false;
+static bool quit    = false;
 
-static std::array<uint32_t, SCREEN_WIDTH * SCREEN_HEIGHT> frame;
+static std::unique_ptr<Sdl> sdl;
+static std::unique_ptr<Nes> nes;
+static std::vector<uint32_t> frame;
 
-static std::unique_ptr<SDL_Event> event;
-static SDL_RendererPtr renderer;
-static SDL_WindowPtr window;
-static SDL_TexturePtr texture;
-
-static bool quit = false;
+static bool handle_input(Nes& nes);
+static bool read_screen_state(Nes& nes);
+static void sdl_callback(Nes& nes);
+static bool init_emulator();
+static void start_emulator();
+static void start_emulator();
+static bool load_rom_from_file(const std::string& path);
+#if __EMSCRIPTEN__
+static void emscripten_loop_wrapper();
+#endif
 
 #if __EMSCRIPTEN__
-EM_JS(void, sdl_init_canvas, (int width, int height), {
+EM_JS(void, sdl_init_canvas, (size_t width, size_t height), {
     const canvas         = document.getElementById('canvas');
     canvas.width         = width;
     canvas.height        = height;
@@ -39,174 +46,49 @@ EM_JS(void, sdl_init_canvas, (int width, int height), {
     canvas.style.height  = height + 'px';
     canvas.style.display = 'block';
 
-    const loading         = document.getElementById('loading');
-    loading.style.display = 'none';
+    // const loading         = document.getElementById('loading');
+    // loading.style.display = 'none';
 });
 #endif
 
-static int sdl_init()
+static bool handle_input(Nes& nes)
 {
-    if (!SDL_Init(SDL_INIT_VIDEO))
+    std::vector<Sdl::Key> inputs = sdl->get_inputs();
+
+    for (auto& input : inputs)
     {
-        log_error("Fail to init SDL ({}).", SDL_GetError());
-        return 1;
-    }
-
-#if __EMSCRIPTEN__
-    sdl_init_canvas(SCREEN_WIDTH * SCREEN_WIDTH_SCALE, SCREEN_HEIGHT * SCREEN_WIDTH_SCALE);
-#endif
-
-    window.reset(SDL_CreateWindow("NES Emulator",
-                                  SCREEN_WIDTH * SCREEN_WIDTH_SCALE,
-                                  SCREEN_HEIGHT * SCREEN_WIDTH_SCALE,
-                                  SDL_WINDOW_RESIZABLE));
-
-    if (!window)
-    {
-        log_error("Failed to create a window ({}).", SDL_GetError());
-        SDL_Quit();
-        return 1;
-    }
-
-    SDL_PropertiesID props = SDL_CreateProperties();
-    SDL_SetPointerProperty(props, SDL_PROP_RENDERER_CREATE_WINDOW_POINTER, window.get());
-    SDL_SetNumberProperty(props, SDL_PROP_RENDERER_CREATE_PRESENT_VSYNC_NUMBER, 1);
-    renderer.reset(SDL_CreateRendererWithProperties(props), SDL_RendererDeleter{});
-
-    if (!renderer)
-    {
-        log_error("Failed to create a render ({}).", SDL_GetError());
-        SDL_Quit();
-        return 1;
-    }
-
-    if (!SDL_SetRenderScale(renderer.get(), SCREEN_WIDTH_SCALE, SCREEN_HEIGHT_SCALE))
-    {
-        log_error("Failed to scale renderer ({}).", SDL_GetError());
-        SDL_Quit();
-        return 1;
-    }
-
-    texture.reset(SDL_CreateTexture(renderer.get(),
-                                    SDL_PIXELFORMAT_RGBA32,
-                                    SDL_TEXTUREACCESS_STREAMING,
-                                    SCREEN_WIDTH,
-                                    SCREEN_HEIGHT));
-
-    if (!texture)
-    {
-        log_error("Failed to create texture ({}).", SDL_GetError());
-        SDL_Quit();
-        return 1;
-    }
-
-    SDL_SetTextureScaleMode(texture.get(), SDL_SCALEMODE_NEAREST);
-
-    event = std::make_unique<SDL_Event>();
-
-    return 0;
-}
-
-static void sdl_handle_input(Nes& nes)
-{
-    while (SDL_PollEvent(event.get()))
-    {
-        if (event->type == SDL_EVENT_QUIT)
+        switch (input)
         {
-            quit = true;
-        }
-        else if (event->type == SDL_EVENT_KEY_DOWN)
-        {
-            switch (event->key.key)
-            {
-            case SDLK_W:
-                nes.get_bus()->write8(0xFF, 0x77);
-                break;
-            case SDLK_S:
-                nes.get_bus()->write8(0xFF, 0x73);
-                break;
-            case SDLK_A:
-                nes.get_bus()->write8(0xFF, 0x61);
-                break;
-            case SDLK_D:
-                nes.get_bus()->write8(0xFF, 0x64);
-                break;
-            default:
-                break;
-            }
+        case Sdl::Key::QUIT:
+            return false;
+        case Sdl::Key::W:
+            nes.get_bus()->write8(0xFF, 0x77);
+            break;
+        case Sdl::Key::S:
+            nes.get_bus()->write8(0xFF, 0x73);
+            break;
+        case Sdl::Key::A:
+            nes.get_bus()->write8(0xFF, 0x61);
+            break;
+        case Sdl::Key::D:
+            nes.get_bus()->write8(0xFF, 0x64);
+            break;
+        default:
+            break;
         }
     }
+
+    return true;
 }
 
-static uint32_t color(uint8_t color_idx)
-{
-    switch (color_idx)
-    {
-    /* Black */
-    case 0u:
-        return SDL_MapRGB(SDL_GetPixelFormatDetails(SDL_PIXELFORMAT_RGBA32), nullptr, 0u, 0u, 0u);
-    /* White */
-    case 1u:
-        return SDL_MapRGB(SDL_GetPixelFormatDetails(SDL_PIXELFORMAT_RGBA32),
-                          nullptr,
-                          255u,
-                          255u,
-                          255u);
-    /* Grey */
-    case 2u:
-    case 9u:
-        return SDL_MapRGB(SDL_GetPixelFormatDetails(SDL_PIXELFORMAT_RGBA32),
-                          nullptr,
-                          128u,
-                          128u,
-                          128u);
-    /* Red */
-    case 3u:
-    case 10u:
-        return SDL_MapRGB(SDL_GetPixelFormatDetails(SDL_PIXELFORMAT_RGBA32), nullptr, 255u, 0u, 0u);
-    /* Green */
-    case 4u:
-    case 11u:
-        return SDL_MapRGB(SDL_GetPixelFormatDetails(SDL_PIXELFORMAT_RGBA32), nullptr, 0u, 255u, 0u);
-    /* Blue */
-    case 5u:
-    case 12u:
-        return SDL_MapRGB(SDL_GetPixelFormatDetails(SDL_PIXELFORMAT_RGBA32), nullptr, 0u, 0u, 255u);
-    /* Magenta */
-    case 6u:
-    case 13u:
-        return SDL_MapRGB(SDL_GetPixelFormatDetails(SDL_PIXELFORMAT_RGBA32),
-                          nullptr,
-                          255u,
-                          0u,
-                          255u);
-    /* Yellow */
-    case 7u:
-    case 14u:
-        return SDL_MapRGB(SDL_GetPixelFormatDetails(SDL_PIXELFORMAT_RGBA32),
-                          nullptr,
-                          255u,
-                          255u,
-                          0u);
-    /* Cyan */
-    default:
-        return SDL_MapRGB(SDL_GetPixelFormatDetails(SDL_PIXELFORMAT_RGBA32),
-                          nullptr,
-                          0u,
-                          255u,
-                          255u);
-    }
-}
-
-static bool sdl_read_screen_state(Nes& nes,
-                                  std::array<uint32_t, SCREEN_WIDTH * SCREEN_HEIGHT>& frame)
+static bool read_screen_state(Nes& nes)
 {
     bool update = false;
 
     for (uint16_t i = 0x0200; i < 0x0600; i++)
     {
         uint8_t color_idx = nes.get_bus()->read8(i);
-        uint32_t rgb      = color(color_idx);
+        uint32_t rgb      = sdl->get_color(color_idx);
 
         if (frame.at(i - 0x0200) != rgb)
         {
@@ -220,27 +102,106 @@ static bool sdl_read_screen_state(Nes& nes,
 
 static void sdl_callback(Nes& nes)
 {
-    sdl_handle_input(nes);
+    if (!handle_input(nes))
+        quit = true;
+
     nes.get_bus()->write8(0x00FE, std::rand() % 16 + 1);
 
-    bool updated = sdl_read_screen_state(nes, frame);
-    if (updated)
-    {
-        SDL_UpdateTexture(texture.get(), nullptr, frame.data(), SCREEN_WIDTH * sizeof(uint32_t));
+    if (read_screen_state(nes))
+        sdl->render(frame);
+}
 
-        SDL_RenderClear(renderer.get());
-        SDL_RenderTexture(renderer.get(), texture.get(), nullptr, nullptr);
-        SDL_RenderPresent(renderer.get());
+static bool init_emulator()
+{
+    set_log_level(Logger::LogLevel::DEBUG);
+    log_info("NES emulator initialization ...");
+
+    std::srand(std::time({}));
+
+    if (!sdl)
+    {
+        sdl = std::make_unique<Sdl>(SCREEN_WIDTH, SCREEN_HEIGHT);
+        frame.resize(SCREEN_WIDTH * SCREEN_HEIGHT);
+
+        std::function<void(int, int)> cb;
+#if __EMSCRIPTEN__
+        cb = sdl_init_canvas;
+#endif
+
+        if (!sdl->init(cb))
+            return false;
     }
+
+    if (!nes)
+        nes = std::make_unique<Nes>(sdl_callback);
+
+    return true;
+}
+
+static void start_emulator()
+{
+    if (!sdl || !nes)
+    {
+        log_error("NES emulator is not initialized.");
+        return;
+    }
+
+    if (running)
+    {
+        log_error("NES emulator is already running.");
+        return;
+    }
+
+    quit    = false;
+    running = true;
+
+    log_info("NES emulator running ...");
+
+#if __EMSCRIPTEN__
+    emscripten_set_main_loop(&emscripten_loop_wrapper, 0, false);
+#else
+    while (!quit && nes->step()) {}
+#endif
+}
+
+static void stop_emulator()
+{
+#if __EMSCRIPTEN__
+    emscripten_cancel_main_loop();
+#endif
+    quit    = true;
+    running = false;
+
+    frame.assign(frame.size(), 0u);
+    sdl->render(frame);
+}
+
+static bool load_rom_from_file(const std::string& path)
+{
+    std::ifstream file(path, std::ios::in | std::ios::binary);
+
+    if (!file || !file.is_open())
+    {
+        log_error("Cannot open file {}.", path);
+        return false;
+    }
+
+    std::vector<uint8_t> rom((std::istreambuf_iterator<char>(file)),
+                             std::istreambuf_iterator<char>());
+
+    if (!nes || !nes->load_rom(rom))
+        return false;
+
+    nes->reset();
+    return true;
 }
 
 #if __EMSCRIPTEN__
-static void emscripten_loop_wrapper(void* arg)
+static void emscripten_loop_wrapper()
 {
-    Nes* nes = static_cast<Nes*>(arg);
     if (quit)
     {
-        emscripten_cancel_main_loop();
+        stop_emulator();
         return;
     }
 
@@ -253,64 +214,32 @@ static void emscripten_loop_wrapper(void* arg)
         }
     }
 }
-#else
-std::vector<uint8_t> read_rom_file(const std::string& path)
+
+EMSCRIPTEN_BINDINGS(Wrappers)
 {
-    std::ifstream file(path, std::ios::in | std::ios::binary);
-
-    if (!file)
-    {
-        log_error("Cannot open file {}.", path);
-        return std::vector<uint8_t>();
-    }
-
-    std::vector<uint8_t> rom((std::istreambuf_iterator<char>(file)),
-                             std::istreambuf_iterator<char>());
-    return rom;
-}
-#endif
-
-#if __EMSCRIPTEN__
-int main()
+    emscripten::function("init_emulator", &init_emulator);
+    emscripten::function("start_emulator", &start_emulator);
+    emscripten::function("stop_emulator", &stop_emulator);
+    emscripten::function("load_rom_from_file", &load_rom_from_file);
+};
 #else
 int main(int argc, char* argv[])
-#endif
 {
-    set_log_level(Logger::LogLevel::DEBUG);
-    log_info("NES emulator running ...");
+    if (!init_emulator())
+        return 1;
 
-    std::srand(std::time({}));
-
-    Nes nes(sdl_callback);
-
-#if __EMSCRIPTEN__
-    // TODO
-    log_error("WASM version with ROM files is not yet implemented.");
-    return 1;
-#else
     if (argc < 2)
     {
         log_error("Usage: {} <rom_file>", argv[0]);
         return 1;
     }
 
-    if (!nes.load_rom(read_rom_file(std::string(argv[1]))))
-        return 1;
-#endif
-
-    nes.reset();
-
-    if (sdl_init() != 0)
+    if (!load_rom_from_file(std::string(argv[1])))
         return 1;
 
-#if __EMSCRIPTEN__
-    emscripten_set_main_loop_arg(&emscripten_loop_wrapper, &nes, 0, true);
-#else
-    while (!quit && nes.step()) {}
-#endif
+    start_emulator();
 
     log_info("NES emulator exiting ...");
-
-    SDL_Quit();
     return 0;
 }
+#endif

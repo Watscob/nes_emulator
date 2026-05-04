@@ -5,6 +5,7 @@ endif()
 add_executable(
     nesemulator
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sdl.cpp
 )
 
 target_include_directories(
@@ -31,9 +32,8 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
         nesemulator
         PRIVATE
         "-s WASM=1"
+        "--bind"
         "--use-port=sdl3"
-        "-s EXPORTED_FUNCTIONS=['_main']"
-        "-s EXPORTED_RUNTIME_METHODS=['ccall', 'cwrap']"
         "-s MODULARIZE=1"
         "-s ALLOW_MEMORY_GROWTH=1"
         "-s FULL_ES2=1"
