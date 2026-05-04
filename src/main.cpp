@@ -25,17 +25,6 @@ static std::unique_ptr<Sdl> sdl;
 static std::unique_ptr<Nes> nes;
 static std::vector<uint32_t> frame;
 
-static bool handle_input(Nes& nes);
-static bool read_screen_state(Nes& nes);
-static void sdl_callback(Nes& nes);
-static bool init_emulator(uint32_t width, uint32_t height);
-static void start_emulator();
-static void start_emulator();
-static bool load_rom_from_file(const std::string& path);
-#if __EMSCRIPTEN__
-static void emscripten_loop_wrapper();
-#endif
-
 static bool handle_input(Nes& nes)
 {
     std::vector<Sdl::Key> inputs = sdl->get_inputs();
@@ -118,6 +107,18 @@ static bool init_emulator(uint32_t width, uint32_t height)
     return true;
 }
 
+static void stop_emulator()
+{
+#if __EMSCRIPTEN__
+    emscripten_cancel_main_loop();
+#endif
+    quit    = true;
+    running = false;
+
+    frame.assign(frame.size(), 0u);
+    sdl->render(frame);
+}
+
 static void start_emulator()
 {
     if (!sdl || !nes)
@@ -138,22 +139,29 @@ static void start_emulator()
     log_info("NES emulator running ...");
 
 #if __EMSCRIPTEN__
-    emscripten_set_main_loop(&emscripten_loop_wrapper, 0, false);
+    emscripten_set_main_loop(
+        []()
+        {
+            if (quit)
+            {
+                stop_emulator();
+                return;
+            }
+
+            for (int i = 0; i < 100; i++)
+            {
+                if (!nes->step())
+                {
+                    quit = true;
+                    break;
+                }
+            }
+        },
+        0,
+        false);
 #else
     while (!quit && nes->step()) {}
 #endif
-}
-
-static void stop_emulator()
-{
-#if __EMSCRIPTEN__
-    emscripten_cancel_main_loop();
-#endif
-    quit    = true;
-    running = false;
-
-    frame.assign(frame.size(), 0u);
-    sdl->render(frame);
 }
 
 static bool load_rom_from_file(const std::string& path)
@@ -177,29 +185,11 @@ static bool load_rom_from_file(const std::string& path)
 }
 
 #if __EMSCRIPTEN__
-static void emscripten_loop_wrapper()
-{
-    if (quit)
-    {
-        stop_emulator();
-        return;
-    }
-
-    for (int i = 0; i < 100; i++)
-    {
-        if (!nes->step())
-        {
-            quit = true;
-            break;
-        }
-    }
-}
-
 EMSCRIPTEN_BINDINGS(Wrappers)
 {
     emscripten::function("init_emulator", &init_emulator);
-    emscripten::function("start_emulator", &start_emulator);
     emscripten::function("stop_emulator", &stop_emulator);
+    emscripten::function("start_emulator", &start_emulator);
     emscripten::function("load_rom_from_file", &load_rom_from_file);
 };
 #else
@@ -223,6 +213,8 @@ int main(int argc, char* argv[])
     start_emulator();
 
     log_info("NES emulator exiting ...");
+    stop_emulator();
+
     return 0;
 }
 #endif
