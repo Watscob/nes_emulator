@@ -11,7 +11,7 @@ async function loadRomFromFile() {
     const file = fileInput.files[0];
     if (!file) {
         alert("Please select a ROM file!");
-        return;
+        return false;
     }
 
     const buffer = await file.arrayBuffer();
@@ -20,13 +20,17 @@ async function loadRomFromFile() {
     try {
         FS.writeFile("/rom.nes", romData);
 
-        if (Module.load_rom_from_file("/rom.nes"))
-            console.log("ROM loaded");
-        else
+        if (!Module.load_rom_from_file("/rom.nes")) {
             console.error("Failed to load ROM");
+            return false;
+        }
     } catch (err) {
         console.error("Failed to load ROM (", err, ")");
+        return false;
     }
+
+    console.log("ROM loaded");
+    return true;
 }
 
 function initEmulator(width, height) {
@@ -51,4 +55,12 @@ function stopEmulator() {
     } catch (err) {
         console.error("An error occured while stopping the emulator (", err, ")");
     }
+}
+
+function runEmulator() {
+    loadRomFromFile().then((result) => {
+        if (result) {
+            startEmulator();
+        }
+    });
 }

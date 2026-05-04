@@ -1,15 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NES Emulator</title>
     <link rel="preload" href="index.css" as="style">
     <link rel="stylesheet" href="index.css">
   </head>
   <body>
     <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
     <input type="file" id="romFile" accept=".nes,.rom"/>
-    <button onclick="loadRomFromFile()">Load ROM</button>
-    <button onclick="startEmulator()">Run</button>
+    <button onclick="stopEmulator()">Stop</button>
+    <button onclick="runEmulator()">Run</button>
     <script src="nesemulator.js"></script>
     <script src="index.js"></script>
   </body>
