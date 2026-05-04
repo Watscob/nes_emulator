@@ -6,13 +6,13 @@
 #include <memory>
 
 enum class AddressingMode;
-class Memory;
+class Bus;
 
 class Cpu
 {
   public:
     Cpu() = delete;
-    Cpu(std::shared_ptr<Memory> memory);
+    explicit Cpu(std::shared_ptr<Bus> bus);
     ~Cpu() = default;
 
     void reset();
@@ -51,7 +51,7 @@ class Cpu
     std::bitset<8> status_;
     uint16_t program_counter_;
     uint8_t stack_pointer_;
-    std::shared_ptr<Memory> memory_;
+    std::shared_ptr<Bus> bus_;
 
     constexpr void set_carry(bool set) { status_.set(FLAG_C_POS, set); }
     constexpr void set_zero(bool set) { status_.set(FLAG_Z_POS, set); }

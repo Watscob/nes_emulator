@@ -46,7 +46,7 @@ class Logger
     static constexpr std::string_view COLOR_GREEN = "\033[32m";
     static constexpr std::string_view COLOR_GREY  = "\033[90m";
 
-    Logger()
+    explicit Logger()
         : level_(LogLevel::QUIET)
     {
     }

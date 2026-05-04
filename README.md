@@ -10,7 +10,7 @@ NES emulator (support Linux native and web)
 
 ### Run
 ```sh
-build/src/nesemulator
+build/src/nesemulator <rom_file>
 ```
 
 ### Unit tests
@@ -28,6 +28,6 @@ build/tests/test_nesemulator
 
 ### Run
 ```sh
-python3 http.server 8000
+python3 http.server 8000 -d web/
 ```
 Then, open http://localhost:8000
