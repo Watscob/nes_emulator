@@ -39,6 +39,22 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
         "-s FULL_ES2=1"
         "-s EXPORT_ES6=1"
     )
+
+    file(GLOB JS_FILES "${CMAKE_CURRENT_BINARY_DIR}/*.js")
+    file(GLOB WASM_FILES "${CMAKE_CURRENT_BINARY_DIR}/*.wasm")
+
+    install(
+        FILES ${JS_FILES} ${WASM_FILES}
+        DESTINATION .
+        PERMISSIONS OWNER_READ OWNER_WRITE
+    )
+
+    add_custom_command(
+        TARGET nesemulator
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} --install . --prefix ${CMAKE_SOURCE_DIR}/web
+        COMMENT "Install .js and .wasm files in ${CMAKE_INSTALL_PREFIX}"
+    )
 else()
     target_link_libraries(
         nesemulator
