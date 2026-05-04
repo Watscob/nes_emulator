@@ -12,17 +12,13 @@
           height: 100vh;
         }
         #canvas {
-          display: none;
+          width: 320px;
+          height: 320px;
           border: 1px solid black;
-        }
-        #loading {
-          font-family: Arial, sans-serif;
-          font-size: 24px;
         }
     </style>
   </head>
   <body>
-    <!--<div id="loading">Loading emulator ...</div>-->
     <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
     <input type="file" id="romFile" accept=".nes,.rom"/>
     <button onclick="loadRomFromFile()">Load ROM</button>

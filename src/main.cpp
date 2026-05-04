@@ -3,7 +3,6 @@
 #include <cstring>
 #include <ctime>
 #include <fstream>
-#include <functional>
 #include <iterator>
 #include <log.hpp>
 #include <memory>
@@ -16,8 +15,8 @@
 #include <emscripten/bind.h>
 #endif
 
-constexpr int SCREEN_WIDTH  = 32;
-constexpr int SCREEN_HEIGHT = 32;
+constexpr uint32_t SCREEN_WIDTH  = 32;
+constexpr uint32_t SCREEN_HEIGHT = 32;
 
 static bool running = false;
 static bool quit    = false;
@@ -29,26 +28,12 @@ static std::vector<uint32_t> frame;
 static bool handle_input(Nes& nes);
 static bool read_screen_state(Nes& nes);
 static void sdl_callback(Nes& nes);
-static bool init_emulator();
+static bool init_emulator(uint32_t width, uint32_t height);
 static void start_emulator();
 static void start_emulator();
 static bool load_rom_from_file(const std::string& path);
 #if __EMSCRIPTEN__
 static void emscripten_loop_wrapper();
-#endif
-
-#if __EMSCRIPTEN__
-EM_JS(void, sdl_init_canvas, (size_t width, size_t height), {
-    const canvas         = document.getElementById('canvas');
-    canvas.width         = width;
-    canvas.height        = height;
-    canvas.style.width   = width + 'px';
-    canvas.style.height  = height + 'px';
-    canvas.style.display = 'block';
-
-    // const loading         = document.getElementById('loading');
-    // loading.style.display = 'none';
-});
 #endif
 
 static bool handle_input(Nes& nes)
@@ -111,7 +96,7 @@ static void sdl_callback(Nes& nes)
         sdl->render(frame);
 }
 
-static bool init_emulator()
+static bool init_emulator(uint32_t width, uint32_t height)
 {
     set_log_level(Logger::LogLevel::DEBUG);
     log_info("NES emulator initialization ...");
@@ -120,15 +105,10 @@ static bool init_emulator()
 
     if (!sdl)
     {
-        sdl = std::make_unique<Sdl>(SCREEN_WIDTH, SCREEN_HEIGHT);
-        frame.resize(SCREEN_WIDTH * SCREEN_HEIGHT);
+        sdl = std::make_unique<Sdl>(width, height, width / SCREEN_WIDTH, height / SCREEN_HEIGHT);
+        frame.resize(sdl->get_width() * sdl->get_height());
 
-        std::function<void(int, int)> cb;
-#if __EMSCRIPTEN__
-        cb = sdl_init_canvas;
-#endif
-
-        if (!sdl->init(cb))
+        if (!sdl->init())
             return false;
     }
 
@@ -225,7 +205,10 @@ EMSCRIPTEN_BINDINGS(Wrappers)
 #else
 int main(int argc, char* argv[])
 {
-    if (!init_emulator())
+    constexpr uint32_t screen_width  = 320u;
+    constexpr uint32_t screen_height = 320u;
+
+    if (!init_emulator(screen_width, screen_height))
         return 1;
 
     if (argc < 2)

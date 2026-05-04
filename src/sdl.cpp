@@ -1,14 +1,14 @@
 #include "sdl.hpp"
 #include <log.hpp>
 
-Sdl::Sdl(size_t width, size_t height)
-    : Sdl(width, height, DEFAULT_SCALE, DEFAULT_SCALE)
+Sdl::Sdl(uint32_t full_width, uint32_t full_height)
+    : Sdl(full_width, full_height, DEFAULT_SCALE, DEFAULT_SCALE)
 {
 }
 
-Sdl::Sdl(size_t width, size_t height, size_t scale_width, size_t scale_height)
-    : width_(width)
-    , height_(height)
+Sdl::Sdl(uint32_t full_width, uint32_t full_height, uint32_t scale_width, uint32_t scale_height)
+    : width_(full_width / scale_width)
+    , height_(full_height / scale_height)
     , scale_width_(scale_width)
     , scale_height_(scale_height)
 {
@@ -19,16 +19,13 @@ Sdl::~Sdl()
     SDL_Quit();
 }
 
-bool Sdl::init(std::function<void(size_t, size_t)> init_callback)
+bool Sdl::init()
 {
     if (!SDL_Init(SDL_INIT_VIDEO))
     {
         log_error("Fail to init SDL ({}).", SDL_GetError());
         return false;
     }
-
-    if (init_callback)
-        init_callback(width_ * scale_width_, height_ * scale_height_);
 
     window_.reset(SDL_CreateWindow("NES Emulator",
                                    width_ * scale_width_,

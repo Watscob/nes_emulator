@@ -1,6 +1,9 @@
 Module.onRuntimeInitialized = function() {
     Module.canvas = document.getElementById('canvas');
-    initEmulator();
+    const rect = Module.canvas.getBoundingClientRect();
+    Module.canvas.width = Module.canvas.clientWidth;
+    Module.canvas.height = Module.canvas.clientHeight;
+    initEmulator(Module.canvas.width, Module.canvas.height);
 };
 
 async function loadRomFromFile() {
@@ -26,9 +29,9 @@ async function loadRomFromFile() {
     }
 }
 
-function initEmulator() {
+function initEmulator(width, height) {
     try {
-        Module.init_emulator();
+        Module.init_emulator(width, height);
     } catch (err) {
         console.error("An error occured while initializing the emulator (", err, ")");
     }
