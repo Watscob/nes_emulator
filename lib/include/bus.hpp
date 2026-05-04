@@ -44,6 +44,8 @@ class Bus
     explicit Bus(std::shared_ptr<Cartridge> cartridge);
     ~Bus() = default;
 
+    void reset();
+
     uint8_t read8(uint16_t addr);
     void write8(uint16_t addr, uint8_t value);
 

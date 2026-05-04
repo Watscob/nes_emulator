@@ -9,6 +9,11 @@ Bus::Bus(std::shared_ptr<Cartridge> cartridge)
 {
 }
 
+void Bus::reset()
+{
+    ram_.assign(ram_.size(), 0u);
+}
+
 uint8_t Bus::read8(uint16_t addr)
 {
     switch (addr)

@@ -23,6 +23,7 @@ bool Nes::load_rom(std::vector<uint8_t> raw)
 
 void Nes::reset()
 {
+    bus_->reset();
     cpu_->reset();
 }
 
