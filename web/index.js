@@ -1,13 +1,15 @@
-Module.onRuntimeInitialized = function() {
-    Module.canvas = document.getElementById('canvas');
-    const rect = Module.canvas.getBoundingClientRect();
-    Module.canvas.width = Module.canvas.clientWidth;
-    Module.canvas.height = Module.canvas.clientHeight;
-    initEmulator(Module.canvas.width, Module.canvas.height);
-};
+Module = {
+    onRuntimeInitialized: function() {
+        Module.canvas = document.getElementById('canvas');
+        const rect = Module.canvas.getBoundingClientRect();
+        Module.canvas.width = Module.canvas.clientWidth;
+        Module.canvas.height = Module.canvas.clientHeight;
+        initEmulator(Module.canvas.width, Module.canvas.height);
+    }
+}
 
 async function loadRomFromFile() {
-    const fileInput = document.getElementById('romFile');
+    const fileInput = document.getElementById('rom-file');
     const file = fileInput.files[0];
     if (!file) {
         alert("Please select a ROM file!");
@@ -64,3 +66,14 @@ function runEmulator() {
         }
     });
 }
+
+const romFileInput = document.getElementById('rom-file');
+const fileLabel = document.getElementById('file-label');
+romFileInput.addEventListener('change', function(event) {
+  if (this.files.length > 0) {
+    const fileName = this.files[0].name;
+    fileLabel.textContent = fileName;
+  } else {
+    fileLabel.textContent = 'Choose ROM';
+  }
+});

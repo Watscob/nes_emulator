@@ -4,15 +4,27 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NES Emulator</title>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" as="style">
     <link rel="preload" href="index.css" as="style">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
     <link rel="stylesheet" href="index.css">
   </head>
   <body>
-    <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
-    <input type="file" id="romFile" accept=".nes,.rom"/>
-    <button onclick="stopEmulator()">Stop</button>
-    <button onclick="runEmulator()">Run</button>
-    <script src="nesemulator.js"></script>
+    <h1>NES Emulator</h1>
+    <div class="container">
+      <div class="canvas-wrapper">
+        <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+      </div>
+      <div class="controls">
+        <input type="file" id="rom-file" class="file-input" accept=".nes,.rom"/>
+        <label for="rom-file" id="file-label" class="btn">Choose ROM</label>
+        <div class="buttons">
+          <button onclick="stopEmulator()" class="btn btn-stop">Stop</button>
+          <button onclick="runEmulator()" class="btn btn-run">Run</button>
+        </div>
+      </div>
+    </div>
     <script src="index.js"></script>
+    <script src="nesemulator.js"></script>
   </body>
 </html>
