@@ -328,6 +328,7 @@ bool Cpu::step()
     case 0xE1:
     case 0xE5:
     case 0xE9:
+    case 0xEB:
     case 0xED:
     case 0xF1:
     case 0xF5:

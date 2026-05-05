@@ -263,7 +263,7 @@ constexpr std::array<OpCode, 0x100> OPCODES = {{
     /* 0xE8 */ {"INX", 1, 2, AddressingMode::NONE},
     /* 0xE9 */ {"SBC", 2, 2, AddressingMode::IMMEDIATE},
     /* 0xEA */ {"NOP", 1, 2, AddressingMode::NONE},
-    /* 0xEB */ {"   ", 0, 0, AddressingMode::NONE},
+    /* 0xEB */ {"*SBC", 2, 2, AddressingMode::IMMEDIATE},
     /* 0xEC */ {"CPX", 3, 4, AddressingMode::ABSOLUTE},
     /* 0xED */ {"SBC", 3, 4, AddressingMode::ABSOLUTE},
     /* 0xEE */ {"INC", 3, 6, AddressingMode::ABSOLUTE},
