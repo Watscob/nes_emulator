@@ -157,6 +157,16 @@ bool Cpu::step()
     case 0xCC:
         op_cmp(opcode.mode, register_y_);
         break;
+    /* *DCP */
+    case 0xC3:
+    case 0xC7:
+    case 0xCF:
+    case 0xD3:
+    case 0xD7:
+    case 0xDB:
+    case 0xDF:
+        op_dcp(opcode.mode);
+        break;
     /* DEC */
     case 0xC6:
     case 0xCE:
@@ -542,6 +552,16 @@ void Cpu::op_cmp(AddressingMode mode, uint8_t compare_with)
     uint8_t value = bus_->read8(addr);
     status_.set_carry(compare_with >= value);
     update_zero_and_negative(compare_with - value);
+}
+
+void Cpu::op_dcp(AddressingMode mode)
+{
+    uint16_t addr = get_operand_address(mode);
+    uint8_t value = bus_->read8(addr);
+    value--;
+    bus_->write8(addr, value);
+    status_.set_carry(value <= register_a_);
+    update_zero_and_negative(register_a_ - value);
 }
 
 void Cpu::op_dec(AddressingMode mode)
