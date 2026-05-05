@@ -129,6 +129,7 @@ class Cpu
     void op_php();
     void op_pla();
     void op_plp();
+    void op_rla(AddressingMode mode);
     void op_rol_accumulator();
     void op_rol(AddressingMode mode);
     void op_ror_accumulator();

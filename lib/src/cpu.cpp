@@ -307,6 +307,16 @@ bool Cpu::step()
     case 0x28:
         op_plp();
         break;
+    /* RLA */
+    case 0x23:
+    case 0x27:
+    case 0x2F:
+    case 0x33:
+    case 0x37:
+    case 0x3B:
+    case 0x3F:
+        op_rla(opcode.mode);
+        break;
     /* ROL accumulator */
     case 0x2A:
         op_rol_accumulator();
@@ -743,6 +753,20 @@ void Cpu::op_plp()
     status_.set(stack_pop8());
     status_.set_break(0);
     status_.set_unused(1);
+}
+
+void Cpu::op_rla(AddressingMode mode)
+{
+    uint16_t addr  = get_operand_address(mode);
+    uint8_t value  = bus_->read8(addr);
+    bool old_carry = status_.get_carry();
+    status_.set_carry((value >> 7) & 0x1);
+    value <<= 1;
+    if (old_carry)
+        value |= 0x1;
+    bus_->write8(addr, value);
+    register_a_ &= value;
+    update_zero_and_negative(register_a_);
 }
 
 void Cpu::op_rol_accumulator()
