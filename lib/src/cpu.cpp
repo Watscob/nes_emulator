@@ -339,6 +339,16 @@ bool Cpu::step()
     case 0x7E:
         op_ror(opcode.mode);
         break;
+    /* RRA */
+    case 0x63:
+    case 0x67:
+    case 0x6F:
+    case 0x73:
+    case 0x77:
+    case 0x7B:
+    case 0x7F:
+        op_rra(opcode.mode);
+        break;
     /* RTI */
     case 0x40:
         op_rti();
@@ -823,6 +833,19 @@ void Cpu::op_ror(AddressingMode mode)
         value |= 0x80;
     bus_->write8(addr, value);
     update_zero_and_negative(value);
+}
+
+void Cpu::op_rra(AddressingMode mode)
+{
+    uint16_t addr  = get_operand_address(mode);
+    uint8_t value  = bus_->read8(addr);
+    bool old_carry = status_.get_carry();
+    status_.set_carry(value & 0x1);
+    value >>= 1;
+    if (old_carry)
+        value |= 0x80;
+    bus_->write8(addr, value);
+    add_to_register_a(value);
 }
 
 void Cpu::op_rti()
