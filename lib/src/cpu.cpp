@@ -389,56 +389,47 @@ bool Cpu::step()
     return true;
 }
 
+uint16_t Cpu::get_absolute_address(AddressingMode mode, uint16_t addr)
+{
+    switch (mode)
+    {
+    case AddressingMode::ZERO_PAGE:
+        return bus_->read8(addr);
+    case AddressingMode::ABSOLUTE:
+        return bus_->read16(addr);
+    case AddressingMode::ZERO_PAGE_X:
+        return static_cast<uint8_t>(bus_->read8(addr) + register_x_);
+    case AddressingMode::ZERO_PAGE_Y:
+        return static_cast<uint8_t>(bus_->read8(addr) + register_y_);
+    case AddressingMode::ABSOLUTE_X:
+        return bus_->read16(addr) + register_x_;
+    case AddressingMode::ABSOLUTE_Y:
+        return bus_->read16(addr) + register_y_;
+    case AddressingMode::INDIRECT_X:
+    {
+        uint8_t base = bus_->read8(addr) + register_x_;
+        return bus_->read8(base) | (bus_->read8(static_cast<uint8_t>(base + 1)) << 8);
+    }
+    case AddressingMode::INDIRECT_Y:
+    {
+        uint16_t base  = bus_->read8(addr);
+        uint16_t deref = bus_->read8(base & 0xFF) | (bus_->read8((base + 1) & 0xFF) << 8);
+        return deref + register_y_;
+    }
+    default:
+        log_error("Mode {} is not supproted.", static_cast<int>(mode));
+        return 0u;
+    }
+}
+
 uint16_t Cpu::get_operand_address(AddressingMode mode)
 {
     switch (mode)
     {
     case AddressingMode::IMMEDIATE:
         return program_counter_;
-    case AddressingMode::ZERO_PAGE:
-        return bus_->read8(program_counter_);
-    case AddressingMode::ABSOLUTE:
-        return bus_->read16(program_counter_);
-    case AddressingMode::ZERO_PAGE_X:
-    {
-        uint16_t addr = bus_->read8(program_counter_);
-        addr += register_x_;
-        return addr;
-    }
-    case AddressingMode::ZERO_PAGE_Y:
-    {
-        uint16_t addr = bus_->read8(program_counter_);
-        addr += register_y_;
-        return addr;
-    }
-    case AddressingMode::ABSOLUTE_X:
-    {
-        uint16_t addr = bus_->read16(program_counter_);
-        addr += register_x_;
-        return addr;
-    }
-    case AddressingMode::ABSOLUTE_Y:
-    {
-        uint16_t addr = bus_->read16(program_counter_);
-        addr += register_y_;
-        return addr;
-    }
-    case AddressingMode::INDIRECT_X:
-    {
-        uint16_t addr = bus_->read8(program_counter_);
-        addr += register_x_;
-        return bus_->read16(addr);
-    }
-    case AddressingMode::INDIRECT_Y:
-    {
-        uint16_t addr  = bus_->read8(program_counter_);
-        uint16_t deref = bus_->read16(addr);
-        deref += register_y_;
-        return deref;
-    }
     default:
-        log_error("Mode {} is not supproted.", static_cast<int>(mode));
-        return 0u;
+        return get_absolute_address(mode, program_counter_);
     }
 }
 
@@ -659,8 +650,10 @@ void Cpu::op_ora(AddressingMode mode)
 
 void Cpu::op_php()
 {
-    set_break(1);
-    stack_push8(static_cast<uint8_t>(status_.to_ulong()));
+    std::bitset<8> status = get_status();
+    status.set(FLAG_B_POS, 1);
+    status.set(FLAG_U_POS, 1);
+    stack_push8(static_cast<uint8_t>(status.to_ulong()));
 }
 
 void Cpu::op_pla()
@@ -673,6 +666,7 @@ void Cpu::op_plp()
 {
     status_ = stack_pop8();
     set_break(0);
+    set_unused(1);
 }
 
 void Cpu::op_rol_accumulator()
@@ -725,6 +719,7 @@ void Cpu::op_rti()
 {
     status_ = stack_pop8();
     set_break(0);
+    set_unused(1);
     program_counter_ = stack_pop16();
 }
 

@@ -42,6 +42,7 @@ class Cpu
     static constexpr uint8_t FLAG_I_POS = 2;
     static constexpr uint8_t FLAG_D_POS = 3;
     static constexpr uint8_t FLAG_B_POS = 4;
+    static constexpr uint8_t FLAG_U_POS = 5;
     static constexpr uint8_t FLAG_V_POS = 6;
     static constexpr uint8_t FLAG_N_POS = 7;
 
@@ -58,6 +59,7 @@ class Cpu
     constexpr void set_interrupt(bool set) { status_.set(FLAG_I_POS, set); }
     constexpr void set_decimal(bool set) { status_.set(FLAG_D_POS, set); }
     constexpr void set_break(bool set) { status_.set(FLAG_B_POS, set); }
+    constexpr void set_unused(bool set) { status_.set(FLAG_U_POS, set); }
     constexpr void set_overflow(bool set) { status_.set(FLAG_V_POS, set); }
     constexpr void set_negative(bool set) { status_.set(FLAG_N_POS, set); }
 
@@ -67,6 +69,7 @@ class Cpu
         set_negative(value & 0x80);
     }
 
+    uint16_t get_absolute_address(AddressingMode mode, uint16_t addr);
     uint16_t get_operand_address(AddressingMode mode);
 
     void stack_push8(uint8_t data);
