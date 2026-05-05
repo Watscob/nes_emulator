@@ -208,6 +208,16 @@ bool Cpu::step()
     case 0xC8:
         op_iny();
         break;
+    /* ISB */
+    case 0xE3:
+    case 0xE7:
+    case 0xEF:
+    case 0xF3:
+    case 0xF7:
+    case 0xFB:
+    case 0xFF:
+        op_isb(opcode.mode);
+        break;
     /* JMP absolute */
     case 0x4C:
         op_jmp_absolute();
@@ -611,6 +621,16 @@ void Cpu::op_iny()
 {
     register_y_++;
     update_zero_and_negative(register_y_);
+}
+
+void Cpu::op_isb(AddressingMode mode)
+{
+    uint16_t addr = get_operand_address(mode);
+    uint8_t value = bus_->read8(addr);
+    value++;
+    bus_->write8(addr, value);
+    update_zero_and_negative(value);
+    add_to_register_a(~value);
 }
 
 void Cpu::op_jmp_absolute()
