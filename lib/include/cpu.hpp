@@ -117,6 +117,7 @@ class Cpu
     void op_jmp_absolute();
     void op_jmp_indirect();
     void op_jsr();
+    void op_lax(AddressingMode mode);
     void op_lda(AddressingMode mode);
     void op_ldx(AddressingMode mode);
     void op_ldy(AddressingMode mode);
@@ -132,6 +133,7 @@ class Cpu
     void op_ror(AddressingMode mode);
     void op_rti();
     void op_rts();
+    void op_sax(AddressingMode mode);
     void op_sbc(AddressingMode mode);
     void op_sta(AddressingMode mode);
     void op_stx(AddressingMode mode);

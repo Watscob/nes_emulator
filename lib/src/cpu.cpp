@@ -210,6 +210,15 @@ bool Cpu::step()
     case 0x20:
         op_jsr();
         break;
+    /* LAX */
+    case 0xA3:
+    case 0xA7:
+    case 0xAF:
+    case 0xB3:
+    case 0xB7:
+    case 0xBF:
+        op_lax(opcode.mode);
+        break;
     /* LDA */
     case 0xA1:
     case 0xA5:
@@ -307,6 +316,13 @@ bool Cpu::step()
     /* RTS */
     case 0x60:
         op_rts();
+        break;
+    /* SAX */
+    case 0x83:
+    case 0x87:
+    case 0x8F:
+    case 0x97:
+        op_sax(opcode.mode);
         break;
     /* SBC */
     case 0xE1:
@@ -603,6 +619,15 @@ void Cpu::op_jsr()
     program_counter_ = bus_->read16(program_counter_);
 }
 
+void Cpu::op_lax(AddressingMode mode)
+{
+    uint16_t addr = get_operand_address(mode);
+    uint8_t value = bus_->read8(addr);
+    register_a_   = value;
+    register_x_   = value;
+    update_zero_and_negative(register_a_);
+}
+
 void Cpu::op_lda(AddressingMode mode)
 {
     uint16_t addr = get_operand_address(mode);
@@ -726,6 +751,13 @@ void Cpu::op_rti()
 void Cpu::op_rts()
 {
     program_counter_ = stack_pop16() + 1;
+}
+
+void Cpu::op_sax(AddressingMode mode)
+{
+    uint16_t addr = get_operand_address(mode);
+    uint8_t value = register_a_ & register_x_;
+    bus_->write8(addr, value);
 }
 
 void Cpu::op_sbc(AddressingMode mode)
