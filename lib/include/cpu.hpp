@@ -90,8 +90,8 @@ class Cpu
         status_.set_negative(value & 0x80);
     }
 
-    uint16_t get_absolute_address(AddressingMode mode, uint16_t addr);
-    uint16_t get_operand_address(AddressingMode mode);
+    uint16_t get_absolute_address(AddressingMode mode, uint16_t addr) const;
+    uint16_t get_operand_address(AddressingMode mode) const;
 
     void stack_push8(uint8_t data);
     uint8_t stack_pop8();

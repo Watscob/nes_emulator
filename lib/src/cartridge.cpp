@@ -65,14 +65,14 @@ bool Cartridge::load_rom(std::vector<uint8_t> raw)
     return true;
 }
 
-uint8_t Cartridge::read_prg(uint16_t addr)
+uint8_t Cartridge::read_prg(uint16_t addr) const
 {
     if (prg_rom_.size() == PRG_ROM_PAGE_SIZE)
         addr %= PRG_ROM_PAGE_SIZE;
     return prg_rom_.at(addr);
 }
 
-uint8_t Cartridge::read_chr(uint16_t addr)
+uint8_t Cartridge::read_chr(uint16_t addr) const
 {
     // TODO
     (void) addr;

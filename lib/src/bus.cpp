@@ -14,7 +14,7 @@ void Bus::reset()
     ram_.assign(ram_.size(), 0u);
 }
 
-uint8_t Bus::read8(uint16_t addr)
+uint8_t Bus::read8(uint16_t addr) const
 {
     switch (addr)
     {
@@ -44,7 +44,7 @@ void Bus::write8(uint16_t addr, uint8_t value)
     }
 }
 
-uint16_t Bus::read16(uint16_t addr)
+uint16_t Bus::read16(uint16_t addr) const
 {
     uint16_t lo = read8(addr);
     uint16_t hi = read8(addr + 1);

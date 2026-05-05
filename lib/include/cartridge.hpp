@@ -21,8 +21,8 @@ class Cartridge
 
     bool load_rom(std::vector<uint8_t> raw);
 
-    uint8_t read_prg(uint16_t addr);
-    uint8_t read_chr(uint16_t addr);
+    uint8_t read_prg(uint16_t addr) const;
+    uint8_t read_chr(uint16_t addr) const;
 
   private:
     static constexpr std::string_view NES_TAG   = "NES\x1A";

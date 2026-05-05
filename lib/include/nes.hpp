@@ -20,8 +20,8 @@ class Nes
     void reset();
     bool step();
 
-    std::shared_ptr<Bus> get_bus() { return bus_; }
-    std::shared_ptr<Cpu> get_cpu() { return cpu_; }
+    std::shared_ptr<Bus> get_bus() const { return bus_; }
+    std::shared_ptr<Cpu> get_cpu() const { return cpu_; }
 
   private:
     std::shared_ptr<Cartridge> cartridge_;

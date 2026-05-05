@@ -389,7 +389,7 @@ bool Cpu::step()
     return true;
 }
 
-uint16_t Cpu::get_absolute_address(AddressingMode mode, uint16_t addr)
+uint16_t Cpu::get_absolute_address(AddressingMode mode, uint16_t addr) const
 {
     switch (mode)
     {
@@ -422,7 +422,7 @@ uint16_t Cpu::get_absolute_address(AddressingMode mode, uint16_t addr)
     }
 }
 
-uint16_t Cpu::get_operand_address(AddressingMode mode)
+uint16_t Cpu::get_operand_address(AddressingMode mode) const
 {
     switch (mode)
     {
