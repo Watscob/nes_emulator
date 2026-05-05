@@ -55,8 +55,8 @@ TEST(CpuTest, lda_a9_immediate_load_data)
     run_nes(nes);
 
     ASSERT_EQ(nes->get_cpu()->get_register_a(), 0x05);
-    ASSERT_FALSE(nes->get_cpu()->get_zero());
-    ASSERT_FALSE(nes->get_cpu()->get_negative());
+    ASSERT_FALSE(nes->get_cpu()->get_status().get_zero());
+    ASSERT_FALSE(nes->get_cpu()->get_status().get_negative());
 }
 
 TEST(CpuTest, lda_a9_zero_flag)
@@ -68,8 +68,8 @@ TEST(CpuTest, lda_a9_zero_flag)
     run_nes(nes);
 
     ASSERT_EQ(nes->get_cpu()->get_register_a(), 0x00);
-    ASSERT_TRUE(nes->get_cpu()->get_zero());
-    ASSERT_FALSE(nes->get_cpu()->get_negative());
+    ASSERT_TRUE(nes->get_cpu()->get_status().get_zero());
+    ASSERT_FALSE(nes->get_cpu()->get_status().get_negative());
 }
 
 TEST(CpuTest, lda_a9_negative_flag)
@@ -81,8 +81,8 @@ TEST(CpuTest, lda_a9_negative_flag)
     run_nes(nes);
 
     ASSERT_EQ(nes->get_cpu()->get_register_a(), 0xFD);
-    ASSERT_FALSE(nes->get_cpu()->get_zero());
-    ASSERT_TRUE(nes->get_cpu()->get_negative());
+    ASSERT_FALSE(nes->get_cpu()->get_status().get_zero());
+    ASSERT_TRUE(nes->get_cpu()->get_status().get_negative());
 }
 
 TEST(CpuTest, lda_from_memory)
@@ -118,8 +118,8 @@ TEST(CpuTest, tax_aa_move_a_to_x)
 
     ASSERT_EQ(nes->get_cpu()->get_register_a(), 0x0A);
     ASSERT_EQ(nes->get_cpu()->get_register_x(), 0x0A);
-    ASSERT_FALSE(nes->get_cpu()->get_zero());
-    ASSERT_FALSE(nes->get_cpu()->get_negative());
+    ASSERT_FALSE(nes->get_cpu()->get_status().get_zero());
+    ASSERT_FALSE(nes->get_cpu()->get_status().get_negative());
 }
 
 TEST(CpuTest, tax_aa_zero_flag)
@@ -132,8 +132,8 @@ TEST(CpuTest, tax_aa_zero_flag)
 
     ASSERT_EQ(nes->get_cpu()->get_register_a(), 0x00);
     ASSERT_EQ(nes->get_cpu()->get_register_x(), 0x00);
-    ASSERT_TRUE(nes->get_cpu()->get_zero());
-    ASSERT_FALSE(nes->get_cpu()->get_negative());
+    ASSERT_TRUE(nes->get_cpu()->get_status().get_zero());
+    ASSERT_FALSE(nes->get_cpu()->get_status().get_negative());
 }
 
 TEST(CpuTest, tax_aa_negative_flag)
@@ -146,8 +146,8 @@ TEST(CpuTest, tax_aa_negative_flag)
 
     ASSERT_EQ(nes->get_cpu()->get_register_a(), 0xA2);
     ASSERT_EQ(nes->get_cpu()->get_register_x(), 0xA2);
-    ASSERT_FALSE(nes->get_cpu()->get_zero());
-    ASSERT_TRUE(nes->get_cpu()->get_negative());
+    ASSERT_FALSE(nes->get_cpu()->get_status().get_zero());
+    ASSERT_TRUE(nes->get_cpu()->get_status().get_negative());
 }
 
 TEST(CpuTest, inx_e8_increment_x)
@@ -159,8 +159,8 @@ TEST(CpuTest, inx_e8_increment_x)
     run_nes(nes);
 
     ASSERT_EQ(nes->get_cpu()->get_register_x(), 0x01);
-    ASSERT_FALSE(nes->get_cpu()->get_zero());
-    ASSERT_FALSE(nes->get_cpu()->get_negative());
+    ASSERT_FALSE(nes->get_cpu()->get_status().get_zero());
+    ASSERT_FALSE(nes->get_cpu()->get_status().get_negative());
 }
 
 TEST(CpuTest, inx_e8_overflow_x)
@@ -172,8 +172,8 @@ TEST(CpuTest, inx_e8_overflow_x)
     run_nes(nes);
 
     ASSERT_EQ(nes->get_cpu()->get_register_x(), 0x00);
-    ASSERT_TRUE(nes->get_cpu()->get_zero());
-    ASSERT_FALSE(nes->get_cpu()->get_negative());
+    ASSERT_TRUE(nes->get_cpu()->get_status().get_zero());
+    ASSERT_FALSE(nes->get_cpu()->get_status().get_negative());
 }
 
 TEST(CpuTest, adc_add)
@@ -185,8 +185,8 @@ TEST(CpuTest, adc_add)
     run_nes(nes);
 
     ASSERT_EQ(nes->get_cpu()->get_register_a(), 0x15);
-    ASSERT_FALSE(nes->get_cpu()->get_carry());
-    ASSERT_FALSE(nes->get_cpu()->get_overflow());
+    ASSERT_FALSE(nes->get_cpu()->get_status().get_carry());
+    ASSERT_FALSE(nes->get_cpu()->get_status().get_overflow());
 }
 
 TEST(CpuTest, adc_add_overflow)
@@ -198,8 +198,8 @@ TEST(CpuTest, adc_add_overflow)
     run_nes(nes);
 
     ASSERT_EQ(nes->get_cpu()->get_register_a(), 0x01);
-    ASSERT_TRUE(nes->get_cpu()->get_carry());
-    ASSERT_FALSE(nes->get_cpu()->get_overflow());
+    ASSERT_TRUE(nes->get_cpu()->get_status().get_carry());
+    ASSERT_FALSE(nes->get_cpu()->get_status().get_overflow());
 }
 
 TEST(CpuTest, sbc_substract_no_borrow)
@@ -211,8 +211,8 @@ TEST(CpuTest, sbc_substract_no_borrow)
     run_nes(nes);
 
     ASSERT_EQ(nes->get_cpu()->get_register_a(), 0x0B);
-    ASSERT_TRUE(nes->get_cpu()->get_carry());
-    ASSERT_FALSE(nes->get_cpu()->get_overflow());
+    ASSERT_TRUE(nes->get_cpu()->get_status().get_carry());
+    ASSERT_FALSE(nes->get_cpu()->get_status().get_overflow());
 }
 
 TEST(CpuTest, sbc_substract_borrow)
@@ -224,8 +224,8 @@ TEST(CpuTest, sbc_substract_borrow)
     run_nes(nes);
 
     ASSERT_EQ(nes->get_cpu()->get_register_a(), 0xF4);
-    ASSERT_FALSE(nes->get_cpu()->get_carry());
-    ASSERT_FALSE(nes->get_cpu()->get_overflow());
+    ASSERT_FALSE(nes->get_cpu()->get_status().get_carry());
+    ASSERT_FALSE(nes->get_cpu()->get_status().get_overflow());
 }
 
 TEST(CpuTest, sbc_overflow)
@@ -237,8 +237,8 @@ TEST(CpuTest, sbc_overflow)
     run_nes(nes);
 
     ASSERT_EQ(nes->get_cpu()->get_register_a(), 0x7F);
-    ASSERT_TRUE(nes->get_cpu()->get_carry());
-    ASSERT_TRUE(nes->get_cpu()->get_overflow());
+    ASSERT_TRUE(nes->get_cpu()->get_status().get_carry());
+    ASSERT_TRUE(nes->get_cpu()->get_status().get_overflow());
 }
 
 TEST(CpuTest, sbc_substract_zero)
@@ -250,6 +250,6 @@ TEST(CpuTest, sbc_substract_zero)
     run_nes(nes);
 
     ASSERT_EQ(nes->get_cpu()->get_register_a(), 0xFF);
-    ASSERT_FALSE(nes->get_cpu()->get_carry());
-    ASSERT_FALSE(nes->get_cpu()->get_overflow());
+    ASSERT_FALSE(nes->get_cpu()->get_status().get_carry());
+    ASSERT_FALSE(nes->get_cpu()->get_status().get_overflow());
 }

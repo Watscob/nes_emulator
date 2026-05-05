@@ -8,7 +8,7 @@ Cpu::Cpu(std::shared_ptr<Bus> bus)
     : register_a_(0u)
     , register_x_(0u)
     , register_y_(0u)
-    , status_(0x24)
+    , status_()
     , program_counter_(0x8000)
     , stack_pointer_(STACK_RESET)
     , bus_(bus)
@@ -20,7 +20,7 @@ void Cpu::reset()
     register_a_    = 0u;
     register_x_    = 0u;
     register_y_    = 0u;
-    status_        = 0x24;
+    status_        = CpuStatus();
     stack_pointer_ = STACK_RESET;
 
     program_counter_ = bus_->read16(0xFFFC);
@@ -83,15 +83,15 @@ bool Cpu::step()
         break;
     /* BCC */
     case 0x90:
-        op_branch(!get_carry());
+        op_branch(!status_.get_carry());
         break;
     /* BCS */
     case 0xB0:
-        op_branch(get_carry());
+        op_branch(status_.get_carry());
         break;
     /* BEQ */
     case 0xF0:
-        op_branch(get_zero());
+        op_branch(status_.get_zero());
         break;
     /* BIT */
     case 0x24:
@@ -100,39 +100,39 @@ bool Cpu::step()
         break;
     /* BMI */
     case 0x30:
-        op_branch(get_negative());
+        op_branch(status_.get_negative());
         break;
     /* BNE */
     case 0xD0:
-        op_branch(!get_zero());
+        op_branch(!status_.get_zero());
         break;
     /* BPL */
     case 0x10:
-        op_branch(!get_negative());
+        op_branch(!status_.get_negative());
         break;
     /* BVC */
     case 0x50:
-        op_branch(!get_overflow());
+        op_branch(!status_.get_overflow());
         break;
     /* BVS */
     case 0x70:
-        op_branch(get_overflow());
+        op_branch(status_.get_overflow());
         break;
     /* CLC */
     case 0x18:
-        set_carry(0);
+        status_.set_carry(0);
         break;
     /* CLD */
     case 0xD8:
-        set_decimal(0);
+        status_.set_decimal(0);
         break;
     /* CLI */
     case 0x58:
-        set_interrupt(0);
+        status_.set_interrupt(0);
         break;
     /* CLV */
     case 0xB8:
-        set_overflow(0);
+        status_.set_overflow(0);
         break;
     /* CMP */
     case 0xC1:
@@ -321,15 +321,15 @@ bool Cpu::step()
         break;
     /* SEC */
     case 0x38:
-        set_carry(1);
+        status_.set_carry(1);
         break;
     /* SED */
     case 0xF8:
-        set_decimal(1);
+        status_.set_decimal(1);
         break;
     /* SEI */
     case 0x78:
-        set_interrupt(1);
+        status_.set_interrupt(1);
         break;
     /* STA */
     case 0x81:
@@ -462,10 +462,10 @@ void Cpu::add_to_register_a(uint8_t value)
 {
     uint16_t sum = register_a_;
     sum += value;
-    sum += get_carry();
-    set_carry(sum > 0xFF);
+    sum += status_.get_carry();
+    status_.set_carry(sum > 0xFF);
     uint8_t result = static_cast<uint8_t>(sum);
-    set_overflow(((value ^ result) & (result ^ register_a_) & 0x80));
+    status_.set_overflow(((value ^ result) & (result ^ register_a_) & 0x80));
     register_a_ = result;
     update_zero_and_negative(register_a_);
 }
@@ -486,7 +486,7 @@ void Cpu::op_and(AddressingMode mode)
 
 void Cpu::op_asl_accumulator()
 {
-    set_carry((register_a_ >> 7) & 0x1);
+    status_.set_carry((register_a_ >> 7) & 0x1);
     register_a_ <<= 1;
     update_zero_and_negative(register_a_);
 }
@@ -495,7 +495,7 @@ void Cpu::op_asl(AddressingMode mode)
 {
     uint16_t addr = get_operand_address(mode);
     uint8_t value = bus_->read8(addr);
-    set_carry((value >> 7) & 0x1);
+    status_.set_carry((value >> 7) & 0x1);
     value <<= 1;
     bus_->write8(addr, value);
     update_zero_and_negative(value);
@@ -514,16 +514,16 @@ void Cpu::op_bit(AddressingMode mode)
 {
     uint16_t addr = get_operand_address(mode);
     uint8_t value = bus_->read8(addr);
-    set_zero(!(register_a_ & value));
-    set_overflow((value >> 6) & 0x1);
-    set_negative((value >> 7) & 0x1);
+    status_.set_zero(!(register_a_ & value));
+    status_.set_overflow((value >> 6) & 0x1);
+    status_.set_negative((value >> 7) & 0x1);
 }
 
 void Cpu::op_cmp(AddressingMode mode, uint8_t compare_with)
 {
     uint16_t addr = get_operand_address(mode);
     uint8_t value = bus_->read8(addr);
-    set_carry(compare_with >= value);
+    status_.set_carry(compare_with >= value);
     update_zero_and_negative(compare_with - value);
 }
 
@@ -626,7 +626,7 @@ void Cpu::op_ldy(AddressingMode mode)
 
 void Cpu::op_lsr_accumulator()
 {
-    set_carry(register_a_ & 0x1);
+    status_.set_carry(register_a_ & 0x1);
     register_a_ >>= 1;
     update_zero_and_negative(register_a_);
 }
@@ -635,7 +635,7 @@ void Cpu::op_lsr(AddressingMode mode)
 {
     uint16_t addr = get_operand_address(mode);
     uint8_t value = bus_->read8(addr);
-    set_carry(value & 0x1);
+    status_.set_carry(value & 0x1);
     value >>= 1;
     bus_->write8(addr, value);
     update_zero_and_negative(value);
@@ -650,10 +650,10 @@ void Cpu::op_ora(AddressingMode mode)
 
 void Cpu::op_php()
 {
-    std::bitset<8> status = get_status();
-    status.set(FLAG_B_POS, 1);
-    status.set(FLAG_U_POS, 1);
-    stack_push8(static_cast<uint8_t>(status.to_ulong()));
+    CpuStatus status = status_;
+    status.set_break(1);
+    status.set_unused(1);
+    stack_push8(status);
 }
 
 void Cpu::op_pla()
@@ -664,15 +664,15 @@ void Cpu::op_pla()
 
 void Cpu::op_plp()
 {
-    status_ = stack_pop8();
-    set_break(0);
-    set_unused(1);
+    status_.set(stack_pop8());
+    status_.set_break(0);
+    status_.set_unused(1);
 }
 
 void Cpu::op_rol_accumulator()
 {
-    bool old_carry = get_carry();
-    set_carry((register_a_ >> 7) & 0x1);
+    bool old_carry = status_.get_carry();
+    status_.set_carry((register_a_ >> 7) & 0x1);
     register_a_ <<= 1;
     if (old_carry)
         register_a_ |= 0x1;
@@ -683,8 +683,8 @@ void Cpu::op_rol(AddressingMode mode)
 {
     uint16_t addr  = get_operand_address(mode);
     uint8_t value  = bus_->read8(addr);
-    bool old_carry = get_carry();
-    set_carry((value >> 7) & 0x1);
+    bool old_carry = status_.get_carry();
+    status_.set_carry((value >> 7) & 0x1);
     value <<= 1;
     if (old_carry)
         value |= 0x1;
@@ -694,8 +694,8 @@ void Cpu::op_rol(AddressingMode mode)
 
 void Cpu::op_ror_accumulator()
 {
-    bool old_carry = get_carry();
-    set_carry(register_a_ & 0x1);
+    bool old_carry = status_.get_carry();
+    status_.set_carry(register_a_ & 0x1);
     register_a_ >>= 1;
     if (old_carry)
         register_a_ |= 0x80;
@@ -706,8 +706,8 @@ void Cpu::op_ror(AddressingMode mode)
 {
     uint16_t addr  = get_operand_address(mode);
     uint8_t value  = bus_->read8(addr);
-    bool old_carry = get_carry();
-    set_carry(value & 0x1);
+    bool old_carry = status_.get_carry();
+    status_.set_carry(value & 0x1);
     value >>= 1;
     if (old_carry)
         value |= 0x80;
@@ -717,9 +717,9 @@ void Cpu::op_ror(AddressingMode mode)
 
 void Cpu::op_rti()
 {
-    status_ = stack_pop8();
-    set_break(0);
-    set_unused(1);
+    status_.set(stack_pop8());
+    status_.set_break(0);
+    status_.set_unused(1);
     program_counter_ = stack_pop16();
 }
 
