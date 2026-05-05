@@ -388,6 +388,16 @@ bool Cpu::step()
     case 0x1F:
         op_slo(opcode.mode);
         break;
+    /* SRE */
+    case 0x43:
+    case 0x47:
+    case 0x4F:
+    case 0x53:
+    case 0x57:
+    case 0x5B:
+    case 0x5F:
+        op_sre(opcode.mode);
+        break;
     /* STA */
     case 0x81:
     case 0x85:
@@ -850,6 +860,17 @@ void Cpu::op_slo(AddressingMode mode)
     value <<= 1;
     bus_->write8(addr, value);
     register_a_ |= value;
+    update_zero_and_negative(register_a_);
+}
+
+void Cpu::op_sre(AddressingMode mode)
+{
+    uint16_t addr = get_operand_address(mode);
+    uint8_t value = bus_->read8(addr);
+    status_.set_carry(value & 0x1);
+    value >>= 1;
+    bus_->write8(addr, value);
+    register_a_ ^= value;
     update_zero_and_negative(register_a_);
 }
 
