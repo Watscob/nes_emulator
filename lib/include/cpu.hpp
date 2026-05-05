@@ -137,6 +137,7 @@ class Cpu
     void op_rts();
     void op_sax(AddressingMode mode);
     void op_sbc(AddressingMode mode);
+    void op_slo(AddressingMode mode);
     void op_sta(AddressingMode mode);
     void op_stx(AddressingMode mode);
     void op_sty(AddressingMode mode);

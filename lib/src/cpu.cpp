@@ -368,6 +368,16 @@ bool Cpu::step()
     case 0x78:
         status_.set_interrupt(1);
         break;
+    /* SLO */
+    case 0x03:
+    case 0x07:
+    case 0x0F:
+    case 0x13:
+    case 0x17:
+    case 0x1B:
+    case 0x1F:
+        op_slo(opcode.mode);
+        break;
     /* STA */
     case 0x81:
     case 0x85:
@@ -806,6 +816,17 @@ void Cpu::op_sbc(AddressingMode mode)
     uint16_t addr = get_operand_address(mode);
     uint8_t value = bus_->read8(addr);
     add_to_register_a(~value);
+}
+
+void Cpu::op_slo(AddressingMode mode)
+{
+    uint16_t addr = get_operand_address(mode);
+    uint8_t value = bus_->read8(addr);
+    status_.set_carry((value >> 7) & 0x1);
+    value <<= 1;
+    bus_->write8(addr, value);
+    register_a_ |= value;
+    update_zero_and_negative(register_a_);
 }
 
 void Cpu::op_sta(AddressingMode mode)
