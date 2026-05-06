@@ -59,6 +59,20 @@ bool Cpu::step()
     case 0x7D:
         op_adc(opcode.mode);
         break;
+    /* AHX */
+    case 0x93:
+    case 0x9F:
+        op_ahx(opcode.mode);
+        break;
+    /* ALR */
+    case 0x4B:
+        op_alr(opcode.mode);
+        break;
+    /* ANC */
+    case 0x0B:
+    case 0x2B:
+        op_anc(opcode.mode);
+        break;
     /* AND */
     case 0x21:
     case 0x25:
@@ -70,6 +84,10 @@ bool Cpu::step()
     case 0x3D:
         op_and(opcode.mode);
         break;
+    /* ARR */
+    case 0x6B:
+        op_arr(opcode.mode);
+        break;
     /* ASL accumulator */
     case 0x0A:
         op_asl_accumulator();
@@ -80,6 +98,10 @@ bool Cpu::step()
     case 0x16:
     case 0x1E:
         op_asl(opcode.mode);
+        break;
+    /* AXS */
+    case 0xCB:
+        op_axs(opcode.mode);
         break;
     /* BCC */
     case 0x90:
@@ -230,6 +252,10 @@ bool Cpu::step()
     case 0x20:
         op_jsr();
         break;
+    /* LAS */
+    case 0xBB:
+        op_las(opcode.mode);
+        break;
     /* LAX */
     case 0xA3:
     case 0xA7:
@@ -276,6 +302,10 @@ bool Cpu::step()
     case 0x56:
     case 0x5E:
         op_lsr(opcode.mode);
+        break;
+    /* LXA */
+    case 0xAB:
+        op_lxa(opcode.mode);
         break;
     /* NOP */
     case 0x02:
@@ -422,6 +452,14 @@ bool Cpu::step()
     case 0x78:
         status_.set_interrupt(1);
         break;
+    /* SHX */
+    case 0x9E:
+        op_shx(opcode.mode);
+        break;
+    /* SHY */
+    case 0x9C:
+        op_shy(opcode.mode);
+        break;
     /* SLO */
     case 0x03:
     case 0x07:
@@ -464,6 +502,10 @@ bool Cpu::step()
     case 0x94:
         op_sty(opcode.mode);
         break;
+    /* TAS */
+    case 0x9B:
+        op_tas(opcode.mode);
+        break;
     /* TAX */
     case 0xAA:
         op_tax();
@@ -487,6 +529,10 @@ bool Cpu::step()
     /* TYA */
     case 0x98:
         op_tya();
+        break;
+    /* XAA */
+    case 0x8B:
+        op_xaa(opcode.mode);
         break;
     /* UNKNOWN */
     default:
@@ -588,10 +634,50 @@ void Cpu::op_adc(AddressingMode mode)
     add_to_register_a(value);
 }
 
+void Cpu::op_ahx(AddressingMode mode)
+{
+    uint16_t addr = get_operand_address(mode);
+    uint8_t value = register_a_ & register_x_ & static_cast<uint8_t>(addr >> 8);
+    bus_->write8(addr, value);
+}
+
+void Cpu::op_alr(AddressingMode mode)
+{
+    uint16_t addr = get_operand_address(mode);
+    register_a_ &= bus_->read8(addr);
+    status_.set_carry(register_a_ & 0x1);
+    register_a_ >>= 1;
+    update_zero_and_negative(register_a_);
+}
+
+void Cpu::op_anc(AddressingMode mode)
+{
+    uint16_t addr = get_operand_address(mode);
+    register_a_ &= bus_->read8(addr);
+    update_zero_and_negative(register_a_);
+    status_.set_carry(status_.get_negative());
+}
+
 void Cpu::op_and(AddressingMode mode)
 {
     uint16_t addr = get_operand_address(mode);
     register_a_ &= bus_->read8(addr);
+    update_zero_and_negative(register_a_);
+}
+
+void Cpu::op_arr(AddressingMode mode)
+{
+    uint16_t addr = get_operand_address(mode);
+    register_a_ &= bus_->read8(addr);
+    bool old_carry = status_.get_carry();
+    status_.set_carry(register_a_ & 0x1);
+    register_a_ >>= 1;
+    if (old_carry)
+        register_a_ |= 0x80;
+    bool bit_5 = (register_a_ >> 5) & 0x1;
+    bool bit_6 = (register_a_ >> 6) & 0x1;
+    status_.set_carry(bit_6);
+    status_.set_overflow((bit_5 ^ bit_6) == 0x1);
     update_zero_and_negative(register_a_);
 }
 
@@ -610,6 +696,17 @@ void Cpu::op_asl(AddressingMode mode)
     value <<= 1;
     bus_->write8(addr, value);
     update_zero_and_negative(value);
+}
+
+void Cpu::op_axs(AddressingMode mode)
+{
+    uint16_t addr   = get_operand_address(mode);
+    uint8_t value   = bus_->read8(addr);
+    uint8_t a_and_x = register_a_ & register_x_;
+    uint8_t result  = a_and_x - value;
+    status_.set_carry(value <= a_and_x);
+    register_x_ = result;
+    update_zero_and_negative(result);
 }
 
 void Cpu::op_branch(bool condition)
@@ -734,6 +831,15 @@ void Cpu::op_jsr()
     program_counter_ = bus_->read16(program_counter_);
 }
 
+void Cpu::op_las(AddressingMode mode)
+{
+    uint16_t addr = get_operand_address(mode);
+    stack_pointer_ &= bus_->read8(addr);
+    register_a_ = stack_pointer_;
+    register_x_ = stack_pointer_;
+    update_zero_and_negative(stack_pointer_);
+}
+
 void Cpu::op_lax(AddressingMode mode)
 {
     uint16_t addr = get_operand_address(mode);
@@ -779,6 +885,14 @@ void Cpu::op_lsr(AddressingMode mode)
     value >>= 1;
     bus_->write8(addr, value);
     update_zero_and_negative(value);
+}
+
+void Cpu::op_lxa(AddressingMode mode)
+{
+    uint16_t addr = get_operand_address(mode);
+    register_a_   = bus_->read8(addr);
+    register_x_   = register_a_;
+    update_zero_and_negative(register_x_);
 }
 
 void Cpu::op_ora(AddressingMode mode)
@@ -909,6 +1023,20 @@ void Cpu::op_sbc(AddressingMode mode)
     add_to_register_a(~value);
 }
 
+void Cpu::op_shx(AddressingMode mode)
+{
+    uint16_t addr = get_operand_address(mode);
+    uint8_t value = register_x_ & (static_cast<uint8_t>(addr >> 8) + 1u);
+    bus_->write8(addr, value);
+}
+
+void Cpu::op_shy(AddressingMode mode)
+{
+    uint16_t addr = get_operand_address(mode);
+    uint8_t value = register_y_ & (static_cast<uint8_t>(addr >> 8) + 1u);
+    bus_->write8(addr, value);
+}
+
 void Cpu::op_slo(AddressingMode mode)
 {
     uint16_t addr = get_operand_address(mode);
@@ -949,6 +1077,14 @@ void Cpu::op_sty(AddressingMode mode)
     bus_->write8(addr, register_y_);
 }
 
+void Cpu::op_tas(AddressingMode mode)
+{
+    uint16_t addr  = get_operand_address(mode);
+    stack_pointer_ = register_a_ & register_x_;
+    uint8_t value  = (static_cast<uint8_t>(addr >> 8) + 1u) & stack_pointer_;
+    bus_->write8(addr, value);
+}
+
 void Cpu::op_tax()
 {
     register_x_ = register_a_;
@@ -981,5 +1117,13 @@ void Cpu::op_txs()
 void Cpu::op_tya()
 {
     register_a_ = register_y_;
+    update_zero_and_negative(register_a_);
+}
+
+void Cpu::op_xaa(AddressingMode mode)
+{
+    register_a_   = register_x_;
+    uint16_t addr = get_operand_address(mode);
+    register_a_ &= bus_->read8(addr);
     update_zero_and_negative(register_a_);
 }

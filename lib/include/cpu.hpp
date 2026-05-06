@@ -101,9 +101,14 @@ class Cpu
     void add_to_register_a(uint8_t value);
 
     void op_adc(AddressingMode mode);
+    void op_ahx(AddressingMode mode);
+    void op_alr(AddressingMode mode);
+    void op_anc(AddressingMode mode);
     void op_and(AddressingMode mode);
+    void op_arr(AddressingMode mode);
     void op_asl_accumulator();
     void op_asl(AddressingMode mode);
+    void op_axs(AddressingMode mode);
     void op_branch(bool condition);
     void op_bit(AddressingMode mode);
     void op_cmp(AddressingMode mode, uint8_t compare_with);
@@ -119,12 +124,14 @@ class Cpu
     void op_jmp_absolute();
     void op_jmp_indirect();
     void op_jsr();
+    void op_las(AddressingMode mode);
     void op_lax(AddressingMode mode);
     void op_lda(AddressingMode mode);
     void op_ldx(AddressingMode mode);
     void op_ldy(AddressingMode mode);
     void op_lsr_accumulator();
     void op_lsr(AddressingMode mode);
+    void op_lxa(AddressingMode mode);
     void op_ora(AddressingMode mode);
     void op_php();
     void op_pla();
@@ -139,17 +146,21 @@ class Cpu
     void op_rts();
     void op_sax(AddressingMode mode);
     void op_sbc(AddressingMode mode);
+    void op_shx(AddressingMode mode);
+    void op_shy(AddressingMode mode);
     void op_slo(AddressingMode mode);
     void op_sre(AddressingMode mode);
     void op_sta(AddressingMode mode);
     void op_stx(AddressingMode mode);
     void op_sty(AddressingMode mode);
+    void op_tas(AddressingMode mode);
     void op_tax();
     void op_tay();
     void op_tsx();
     void op_txa();
     void op_txs();
     void op_tya();
+    void op_xaa(AddressingMode mode);
 };
 
 #endif /* CPU_HPP */
