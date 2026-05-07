@@ -51,7 +51,7 @@ class Logger
     {
     }
 
-    std::string_view level_to_string(LogLevel level)
+    static constexpr std::string_view level_to_string(LogLevel level)
     {
         switch (level)
         {
@@ -66,7 +66,7 @@ class Logger
         }
     }
 
-    std::string_view level_to_color(LogLevel level)
+    static constexpr std::string_view level_to_color(LogLevel level)
     {
         switch (level)
         {

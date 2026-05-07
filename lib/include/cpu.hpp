@@ -14,7 +14,7 @@ class Cpu
     class CpuStatus
     {
       public:
-        constexpr CpuStatus()
+        constexpr explicit CpuStatus()
             : status_(DEFAULT_MASK)
         {
         }
@@ -59,18 +59,18 @@ class Cpu
     };
 
     Cpu() = delete;
-    explicit Cpu(std::shared_ptr<Bus> bus);
+    explicit Cpu(const std::shared_ptr<Bus>& bus);
     ~Cpu() = default;
 
     void reset();
     bool step();
 
-    constexpr uint8_t get_register_a() const { return register_a_; }
-    constexpr uint8_t get_register_x() const { return register_x_; }
-    constexpr uint8_t get_register_y() const { return register_y_; }
-    constexpr CpuStatus get_status() const { return status_; }
-    constexpr uint16_t get_program_counter() const { return program_counter_; }
-    constexpr uint8_t get_stack_pointer() const { return stack_pointer_; }
+    uint8_t get_register_a() const { return register_a_; }
+    uint8_t get_register_x() const { return register_x_; }
+    uint8_t get_register_y() const { return register_y_; }
+    const CpuStatus& get_status() const { return status_; }
+    uint16_t get_program_counter() const { return program_counter_; }
+    uint8_t get_stack_pointer() const { return stack_pointer_; }
 
   private:
     static constexpr uint16_t STACK_BASE = 0x0100;
@@ -84,7 +84,7 @@ class Cpu
     uint8_t stack_pointer_;
     std::shared_ptr<Bus> bus_;
 
-    constexpr void update_zero_and_negative(uint8_t value)
+    void update_zero_and_negative(uint8_t value)
     {
         status_.set_zero(value == 0);
         status_.set_negative(value & 0x80);

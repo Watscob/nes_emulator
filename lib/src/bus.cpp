@@ -3,7 +3,7 @@
 #include "cartridge.hpp"
 #include "log.hpp"
 
-Bus::Bus(std::shared_ptr<Cartridge> cartridge)
+Bus::Bus(const std::shared_ptr<Cartridge>& cartridge)
     : ram_(RAM_SIZE)
     , cartridge_(cartridge)
 {

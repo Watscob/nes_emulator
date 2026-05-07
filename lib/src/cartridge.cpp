@@ -1,7 +1,7 @@
 #include "cartridge.hpp"
 #include "log.hpp"
 
-bool Cartridge::load_rom(std::vector<uint8_t> raw)
+bool Cartridge::load_rom(const std::vector<uint8_t>& raw)
 {
     if (!std::equal(NES_TAG.begin(), NES_TAG.end(), raw.begin()))
     {

@@ -16,7 +16,7 @@ Nes::Nes(std::function<void(Nes&)> callback)
 {
 }
 
-bool Nes::load_rom(std::vector<uint8_t> raw)
+bool Nes::load_rom(const std::vector<uint8_t>& raw)
 {
     return cartridge_->load_rom(raw);
 }

@@ -16,12 +16,12 @@ class Nes
     explicit Nes(std::function<void(Nes&)> callback);
     ~Nes() = default;
 
-    bool load_rom(std::vector<uint8_t> raw);
+    bool load_rom(const std::vector<uint8_t>& raw);
     void reset();
     bool step();
 
-    std::shared_ptr<Bus> get_bus() const { return bus_; }
-    std::shared_ptr<Cpu> get_cpu() const { return cpu_; }
+    const std::shared_ptr<Bus>& get_bus() const { return bus_; }
+    const std::shared_ptr<Cpu>& get_cpu() const { return cpu_; }
 
   private:
     std::shared_ptr<Cartridge> cartridge_;

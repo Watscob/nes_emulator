@@ -4,7 +4,7 @@
 #include "log.hpp"
 #include "opcodes.hpp"
 
-Cpu::Cpu(std::shared_ptr<Bus> bus)
+Cpu::Cpu(const std::shared_ptr<Bus>& bus)
     : register_a_(0u)
     , register_x_(0u)
     , register_y_(0u)
