@@ -5,6 +5,7 @@ add_library(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/cartridge.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/cpu.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/nes.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ppu.cpp
 )
 
 target_include_directories(

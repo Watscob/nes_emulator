@@ -74,7 +74,5 @@ uint8_t Cartridge::read_prg(uint16_t addr) const
 
 uint8_t Cartridge::read_chr(uint16_t addr) const
 {
-    // TODO
-    (void) addr;
-    return 0u;
+    return chr_rom_.at(addr);
 }

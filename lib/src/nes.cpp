@@ -2,6 +2,7 @@
 #include "bus.hpp"
 #include "cartridge.hpp"
 #include "cpu.hpp"
+#include "ppu.hpp"
 
 Nes::Nes()
     : Nes(nullptr)
@@ -10,8 +11,9 @@ Nes::Nes()
 
 Nes::Nes(std::function<void(Nes&)> callback)
     : cartridge_(std::make_shared<Cartridge>())
-    , bus_(std::make_shared<Bus>(cartridge_))
     , cpu_(std::make_shared<Cpu>(bus_))
+    , ppu_(std::make_shared<Ppu>(cartridge_))
+    , bus_(std::make_shared<Bus>(cartridge_, ppu_))
     , callback_(callback)
 {
 }

@@ -5,9 +5,10 @@
 #include <memory>
 #include <vector>
 
+class Bus;
 class Cartridge;
 class Cpu;
-class Bus;
+class Ppu;
 
 class Nes
 {
@@ -22,11 +23,13 @@ class Nes
 
     const std::shared_ptr<Bus>& get_bus() const { return bus_; }
     const std::shared_ptr<Cpu>& get_cpu() const { return cpu_; }
+    const std::shared_ptr<Ppu>& get_ppu() const { return ppu_; }
 
   private:
     std::shared_ptr<Cartridge> cartridge_;
-    std::shared_ptr<Bus> bus_;
     std::shared_ptr<Cpu> cpu_;
+    std::shared_ptr<Ppu> ppu_;
+    std::shared_ptr<Bus> bus_;
     std::function<void(Nes&)> callback_;
 };
 

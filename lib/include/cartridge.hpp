@@ -24,6 +24,8 @@ class Cartridge
     uint8_t read_prg(uint16_t addr) const;
     uint8_t read_chr(uint16_t addr) const;
 
+    const Mirroring& get_mirroring() const { return screen_mirroring_; }
+
   private:
     static constexpr std::string_view NES_TAG   = "NES\x1A";
     static constexpr uint16_t PRG_ROM_PAGE_SIZE = 0x4000;

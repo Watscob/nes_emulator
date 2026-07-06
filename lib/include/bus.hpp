@@ -36,12 +36,13 @@
  */
 
 class Cartridge;
+class Ppu;
 
 class Bus
 {
   public:
     Bus() = delete;
-    explicit Bus(const std::shared_ptr<Cartridge>& cartridge);
+    explicit Bus(const std::shared_ptr<Cartridge>& cartridge, const std::shared_ptr<Ppu>& ppu);
     ~Bus() = default;
 
     void reset();
@@ -53,14 +54,17 @@ class Bus
     void write16(uint16_t addr, uint16_t value);
 
   private:
-    static constexpr uint16_t RAM_SIZE      = 0x2000;
-    static constexpr uint16_t RAM_START     = 0x0000;
-    static constexpr uint16_t RAM_END       = 0x1FFF;
-    static constexpr uint16_t PRG_ROM_START = 0x8000;
-    static constexpr uint16_t PRG_ROM_END   = 0xFFFF;
+    static constexpr uint16_t RAM_SIZE            = 0x2000;
+    static constexpr uint16_t RAM_START           = 0x0000;
+    static constexpr uint16_t RAM_END             = 0x1FFF;
+    static constexpr uint16_t PPU_REGISTERS_START = 0x2000;
+    static constexpr uint16_t PPU_REGISTERS_END   = 0x3FFF;
+    static constexpr uint16_t PRG_ROM_START       = 0x8000;
+    static constexpr uint16_t PRG_ROM_END         = 0xFFFF;
 
     std::vector<uint8_t> ram_;
     std::shared_ptr<Cartridge> cartridge_;
+    std::shared_ptr<Ppu> ppu_;
 };
 
 #endif /* BUS_HPP */
