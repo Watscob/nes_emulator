@@ -28,6 +28,6 @@ build/tests/test_nesemulator
 
 ### Run
 ```sh
-python3 http.server 8000 -d web/
+python3 -m http.server -b localhost 8000 -d web/
 ```
 Then, open http://localhost:8000
