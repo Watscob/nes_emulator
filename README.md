@@ -11,6 +11,8 @@ NES emulator (support Linux native and web)
 ### Run
 ```sh
 build/src/nesemulator <rom_file>
+# OR
+./run_native_docker.sh <rom_file>
 ```
 
 ### Unit tests
