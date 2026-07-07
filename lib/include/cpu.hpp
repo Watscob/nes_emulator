@@ -15,34 +15,34 @@ class Cpu
     {
       public:
         constexpr explicit CpuStatus()
-            : status_(DEFAULT_MASK)
+            : bits_(DEFAULT_MASK)
         {
         }
         ~CpuStatus() = default;
 
         constexpr void set(uint8_t value)
         {
-            status_ = value;
+            bits_ = value;
             set_unused(1);
         }
-        constexpr operator uint8_t() const { return static_cast<uint8_t>(status_.to_ulong()); }
+        constexpr operator uint8_t() const { return static_cast<uint8_t>(bits_.to_ulong()); }
 
-        constexpr bool get_carry() const { return status_.test(FLAG_C_POS); }
-        constexpr bool get_zero() const { return status_.test(FLAG_Z_POS); }
-        constexpr bool get_interrupt() const { return status_.test(FLAG_I_POS); }
-        constexpr bool get_decimal() const { return status_.test(FLAG_D_POS); }
-        constexpr bool get_break() const { return status_.test(FLAG_B_POS); }
-        constexpr bool get_overflow() const { return status_.test(FLAG_V_POS); }
-        constexpr bool get_negative() const { return status_.test(FLAG_N_POS); }
+        constexpr bool get_carry() const { return bits_.test(FLAG_C_POS); }
+        constexpr bool get_zero() const { return bits_.test(FLAG_Z_POS); }
+        constexpr bool get_interrupt() const { return bits_.test(FLAG_I_POS); }
+        constexpr bool get_decimal() const { return bits_.test(FLAG_D_POS); }
+        constexpr bool get_break() const { return bits_.test(FLAG_B_POS); }
+        constexpr bool get_overflow() const { return bits_.test(FLAG_V_POS); }
+        constexpr bool get_negative() const { return bits_.test(FLAG_N_POS); }
 
-        constexpr void set_carry(bool set) { status_.set(FLAG_C_POS, set); }
-        constexpr void set_zero(bool set) { status_.set(FLAG_Z_POS, set); }
-        constexpr void set_interrupt(bool set) { status_.set(FLAG_I_POS, set); }
-        constexpr void set_decimal(bool set) { status_.set(FLAG_D_POS, set); }
-        constexpr void set_break(bool set) { status_.set(FLAG_B_POS, set); }
-        constexpr void set_unused(bool set) { status_.set(FLAG_U_POS, set); }
-        constexpr void set_overflow(bool set) { status_.set(FLAG_V_POS, set); }
-        constexpr void set_negative(bool set) { status_.set(FLAG_N_POS, set); }
+        constexpr void set_carry(bool set) { bits_.set(FLAG_C_POS, set); }
+        constexpr void set_zero(bool set) { bits_.set(FLAG_Z_POS, set); }
+        constexpr void set_interrupt(bool set) { bits_.set(FLAG_I_POS, set); }
+        constexpr void set_decimal(bool set) { bits_.set(FLAG_D_POS, set); }
+        constexpr void set_break(bool set) { bits_.set(FLAG_B_POS, set); }
+        constexpr void set_unused(bool set) { bits_.set(FLAG_U_POS, set); }
+        constexpr void set_overflow(bool set) { bits_.set(FLAG_V_POS, set); }
+        constexpr void set_negative(bool set) { bits_.set(FLAG_N_POS, set); }
 
       private:
         static constexpr uint8_t DEFAULT_MASK = 0x24;
@@ -55,7 +55,7 @@ class Cpu
         static constexpr uint8_t FLAG_V_POS   = 6;
         static constexpr uint8_t FLAG_N_POS   = 7;
 
-        std::bitset<8> status_;
+        std::bitset<8> bits_;
     };
 
     Cpu() = delete;
