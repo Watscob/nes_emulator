@@ -1,0 +1,30 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v6
+
+    - name: Build Docker image
+      run: docker build -t build-nes-emulator .
+
+    - name: Build
+      run: docker run --rm -v $(pwd):$(pwd) -w $(pwd) build-nes-emulator ./build.sh -b
+
+    - name: Upload release binary
+      uses: actions/upload-artifact@v7
+      if: always()
+      with:
+        name: nesemulator
+        path: |
+          build/src/nes_emulator
+        archive: false
