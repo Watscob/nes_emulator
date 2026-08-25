@@ -1,0 +1,8 @@
+# Do not ignore
+!.gitignore
+!.clang-format
+
+# Build files
+build/
+.dockerfile_hash
+nesemulator.*
