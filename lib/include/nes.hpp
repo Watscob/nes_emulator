@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+#include "nes_bus.hpp"
 #include "nes_cpu.hpp"
 
 class Nes
@@ -15,6 +16,7 @@ class Nes
     bool step();
 
   private:
+    std::shared_ptr<NesBus> bus_;
     std::shared_ptr<NesCpu> cpu_;
 };
 

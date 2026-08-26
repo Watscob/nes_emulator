@@ -1,13 +1,13 @@
 #include "nes_cpu.hpp"
 
-NesCpu::NesCpu()
+NesCpu::NesCpu(const std::shared_ptr<NesBus>& bus)
     : ra_(0u)
     , rx_(0u)
     , ry_(0u)
     , sp_(STACK_RESET)
     , pc_(0x8000)
     , status_()
-    , rom_()
+    , bus_(bus)
 {
 }
 

@@ -2,13 +2,16 @@
 #define NES_CPU_HPP
 
 #include <cstdint>
+#include <memory>
 #include <vector>
+#include "nes_bus.hpp"
 #include "nes_registers.hpp"
 
 class NesCpu
 {
   public:
-    explicit NesCpu();
+    NesCpu() = delete;
+    explicit NesCpu(const std::shared_ptr<NesBus>& bus);
     ~NesCpu() = default;
 
     void load_rom(const std::vector<uint8_t>& rom);
@@ -24,7 +27,7 @@ class NesCpu
     uint8_t sp_;
     uint16_t pc_;
     NesCpuStatus status_;
-    std::vector<uint8_t> rom_;
+    std::shared_ptr<NesBus> bus_;
 };
 
 #endif /* NES_CPU_HPP */

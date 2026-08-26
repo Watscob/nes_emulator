@@ -1,7 +1,8 @@
 #include "nes.hpp"
 
 Nes::Nes()
-    : cpu_(std::make_shared<NesCpu>())
+    : bus_(std::make_shared<NesBus>())
+    , cpu_(std::make_shared<NesCpu>(bus_))
 {
 }
 
