@@ -1,0 +1,30 @@
+#ifndef NES_CPU_HPP
+#define NES_CPU_HPP
+
+#include <cstdint>
+#include <vector>
+#include "nes_registers.hpp"
+
+class NesCpu
+{
+  public:
+    explicit NesCpu();
+    ~NesCpu() = default;
+
+    void load_rom(const std::vector<uint8_t>& rom);
+    bool step();
+
+  private:
+    static constexpr uint16_t STACK_BASE = 0x0100;
+    static constexpr uint8_t STACK_RESET = 0xFD;
+
+    uint8_t ra_;
+    uint8_t rx_;
+    uint8_t ry_;
+    uint8_t sp_;
+    uint16_t pc_;
+    NesCpuStatus status_;
+    std::vector<uint8_t> rom_;
+};
+
+#endif /* NES_CPU_HPP */
