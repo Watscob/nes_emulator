@@ -8,7 +8,9 @@ Nes::Nes()
 
 void Nes::load_rom(const std::vector<uint8_t>& rom)
 {
-    cpu_->load_rom(rom);
+    bus_->reset();
+    bus_->set_cartridge(std::make_shared<NesCartridge>(rom));
+    cpu_->reset();
 }
 
 bool Nes::step()

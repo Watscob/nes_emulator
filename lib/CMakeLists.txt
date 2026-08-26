@@ -2,6 +2,7 @@ add_library(
     nes_emulator_lib
     STATIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/nes_bus.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/nes_cartridge.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/nes_cpu.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/nes.cpp
 )

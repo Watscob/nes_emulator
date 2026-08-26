@@ -2,7 +2,9 @@
 #define NES_BUS_HPP
 
 #include <cstdint>
+#include <memory>
 #include <vector>
+#include "nes_cartridge.hpp"
 
 class NesBus
 {
@@ -10,6 +12,7 @@ class NesBus
     explicit NesBus();
     ~NesBus() = default;
 
+    void set_cartridge(const std::shared_ptr<NesCartridge>& cartridge);
     void reset();
 
     uint8_t read8(uint16_t addr) const;
@@ -26,6 +29,7 @@ class NesBus
     static constexpr uint16_t PRG_ROM_END   = 0xFFFF;
 
     std::vector<uint8_t> ram_;
+    std::shared_ptr<NesCartridge> cartridge_;
 };
 
 #endif /* NES_BUS_HPP */

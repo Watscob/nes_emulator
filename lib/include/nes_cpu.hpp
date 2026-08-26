@@ -14,7 +14,7 @@ class NesCpu
     explicit NesCpu(const std::shared_ptr<NesBus>& bus);
     ~NesCpu() = default;
 
-    void load_rom(const std::vector<uint8_t>& rom);
+    void reset();
     bool step();
 
   private:

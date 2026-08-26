@@ -11,10 +11,15 @@ NesCpu::NesCpu(const std::shared_ptr<NesBus>& bus)
 {
 }
 
-void NesCpu::load_rom(const std::vector<uint8_t>& rom)
+void NesCpu::reset()
 {
-    (void) rom;
-    pc_ = 0u;
+    ra_     = 0u;
+    rx_     = 0u;
+    ry_     = 0u;
+    status_ = NesCpuStatus();
+    sp_     = STACK_RESET;
+
+    pc_ = bus_->read16(0xFFFC);
 }
 
 bool NesCpu::step()
