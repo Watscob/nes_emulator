@@ -7,5 +7,6 @@ RUN apt-get update &&   \
     build-essential     \
     clang-format        \
     cmake               \
-    git &&              \
+    git                 \
+    libsdl3-dev &&      \
     rm -rf /var/lib/apt/lists/*

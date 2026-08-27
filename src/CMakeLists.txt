@@ -1,16 +1,16 @@
 add_executable(
-    nes_emulator
+    ${CMAKE_PROJECT_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
 )
 
 target_include_directories(
-    nes_emulator
+    ${CMAKE_PROJECT_NAME}
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_link_libraries(
-    nes_emulator
+    ${CMAKE_PROJECT_NAME}
     PRIVATE
-    nes_emulator_lib
+    ${CMAKE_PROJECT_NAME}_lib
 )

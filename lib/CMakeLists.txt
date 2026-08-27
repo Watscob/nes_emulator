@@ -1,5 +1,7 @@
+find_package(SDL3 REQUIRED)
+
 add_library(
-    nes_emulator_lib
+    ${CMAKE_PROJECT_NAME}_lib
     STATIC
     ${CMAKE_CURRENT_SOURCE_DIR}/src/nes_bus.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/nes_cartridge.cpp
@@ -8,9 +10,16 @@ add_library(
 )
 
 target_include_directories(
-    nes_emulator_lib
+    ${CMAKE_PROJECT_NAME}_lib
     PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${SDL3_INCLUDE_DIRS}
+)
+
+target_link_libraries(
+    ${CMAKE_PROJECT_NAME}_lib
+    PRIVATE
+    ${SDL3_LIBRARIES}
 )
