@@ -28,6 +28,11 @@ class NesCpu
     uint16_t pc_;
     NesCpuStatus status_;
     std::shared_ptr<NesBus> bus_;
+
+    void stack_push8(uint8_t value);
+    void stack_push16(uint16_t value);
+    uint8_t stack_pop8();
+    uint16_t stack_pop16();
 };
 
 #endif /* NES_CPU_HPP */
