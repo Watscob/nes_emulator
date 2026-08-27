@@ -13,12 +13,9 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    if (!nes.load_rom(std::string(argv[1])))
-        return 1;
-
+    nes.load_rom(std::string(argv[1]));
     nes.reset();
-
-    while (nes.step()) {}
+    nes.run();
 
     return 0;
 }
