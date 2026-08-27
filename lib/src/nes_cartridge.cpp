@@ -1,7 +1,40 @@
 #include "nes_cartridge.hpp"
+#include <fstream>
 #include <stdexcept>
 
+NesCartridge::NesCartridge(const std::string& path)
+{
+    std::ifstream file(path, std::ios::in | std::ios::binary);
+
+    if (!file || !file.is_open())
+        throw std::runtime_error("Cannot open file " + path + ".");
+
+    std::vector<uint8_t> rom((std::istreambuf_iterator<char>(file)),
+                             std::istreambuf_iterator<char>());
+
+    init(rom);
+}
+
 NesCartridge::NesCartridge(const std::vector<uint8_t>& raw)
+{
+    init(raw);
+}
+
+uint8_t NesCartridge::read_prg(uint16_t addr) const
+{
+    if (prg_rom_.size() == PRG_ROM_PAGE_SIZE)
+        addr %= PRG_ROM_PAGE_SIZE;
+    return prg_rom_.at(addr);
+}
+
+uint8_t NesCartridge::read_chr(uint16_t addr) const
+{
+    // TODO
+    (void) addr;
+    return 0u;
+}
+
+void NesCartridge::init(const std::vector<uint8_t>& raw)
 {
     if (!std::equal(NES_TAG.begin(), NES_TAG.end(), raw.begin()))
         throw std::runtime_error("Invalid NES tag.");
@@ -46,18 +79,4 @@ NesCartridge::NesCartridge(const std::vector<uint8_t>& raw)
         chr_rom_.assign(raw.begin() + HEADER_SIZE + prg_size,
                         raw.begin() + HEADER_SIZE + prg_size + chr_size);
     }
-}
-
-uint8_t NesCartridge::read_prg(uint16_t addr) const
-{
-    if (prg_rom_.size() == PRG_ROM_PAGE_SIZE)
-        addr %= PRG_ROM_PAGE_SIZE;
-    return prg_rom_.at(addr);
-}
-
-uint8_t NesCartridge::read_chr(uint16_t addr) const
-{
-    // TODO
-    (void) addr;
-    return 0u;
 }

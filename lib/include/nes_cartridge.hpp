@@ -2,6 +2,7 @@
 #define NES_CARTRIDGE_HPP
 
 #include <cstdint>
+#include <string>
 #include <string_view>
 #include <vector>
 
@@ -16,6 +17,7 @@ class NesCartridge
 {
   public:
     NesCartridge() = delete;
+    explicit NesCartridge(const std::string& path);
     explicit NesCartridge(const std::vector<uint8_t>& raw);
     ~NesCartridge() = default;
 
@@ -33,6 +35,8 @@ class NesCartridge
     std::vector<uint8_t> chr_rom_;
     uint8_t mapper_;
     Mirroring screen_mirroring_;
+
+    void init(const std::vector<uint8_t>& raw);
 };
 
 #endif /* NES_CARTRIDGE_HPP */

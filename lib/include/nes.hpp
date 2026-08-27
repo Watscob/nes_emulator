@@ -2,6 +2,7 @@
 #define NES_HPP
 
 #include <memory>
+#include <string>
 #include <vector>
 #include "nes_bus.hpp"
 #include "nes_cpu.hpp"
@@ -12,7 +13,9 @@ class Nes
     explicit Nes();
     ~Nes() = default;
 
-    void load_rom(const std::vector<uint8_t>& rom);
+    bool load_rom(const std::string& path);
+    bool load_rom(const std::vector<uint8_t>& rom);
+    void reset();
     bool step();
 
   private:

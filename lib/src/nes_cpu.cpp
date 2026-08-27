@@ -443,17 +443,15 @@ bool NesCpu::step()
     uint16_t pc_state = pc_;
 
     if (code == 0x00)
-        return true;
+        return false;
 
-    if (!op.callback)
-        return true;
-
-    op.callback(this);
+    if (op.callback)
+        op.callback(this);
 
     if (pc_state == pc_)
         pc_ += (op.length - 1u);
 
-    return false;
+    return true;
 }
 
 void NesCpu::stack_push8(uint8_t value)
