@@ -17,11 +17,7 @@ const std::array<NesCpu::OpCode, 256u> NesCpu::OPCODES = {{
     /* 0x0D */ {"ORA", 3, 4, &NesCpu::run_op_<&NesCpu::op_ora_, AddressingMode::ABSOLUTE>},
     /* 0x0E */ {"ASL", 3, 6, &NesCpu::run_op_<&NesCpu::op_asl_, AddressingMode::ABSOLUTE>},
     /* 0x0F */ {"*SLO", 3, 6, &NesCpu::run_op_<&NesCpu::op_slo_, AddressingMode::ABSOLUTE>},
-    /* 0x10 */
-    {"BPL",
-     2,
-     2 /*+1 if branch succeeds, +2 if to a new page*/,
-     &NesCpu::run_op_<&NesCpu::op_blp_>},
+    /* 0x10 */ {"BPL", 2, 2, &NesCpu::run_op_<&NesCpu::op_blp_>},
     /* 0x11 */ {"ORA", 2, 5, &NesCpu::run_op_<&NesCpu::op_ora_, AddressingMode::INDIRECT_Y>},
     /* 0x12 */ {"*NOP", 1, 2, nullptr},
     /* 0x13 */ {"*SLO", 2, 8, &NesCpu::run_op_<&NesCpu::op_slo_, AddressingMode::INDIRECT_Y>},
@@ -53,11 +49,7 @@ const std::array<NesCpu::OpCode, 256u> NesCpu::OPCODES = {{
     /* 0x2D */ {"AND", 3, 4, &NesCpu::run_op_<&NesCpu::op_and_, AddressingMode::ABSOLUTE>},
     /* 0x2E */ {"ROL", 3, 6, &NesCpu::run_op_<&NesCpu::op_rol_, AddressingMode::ABSOLUTE>},
     /* 0x2F */ {"*RLA", 3, 6, &NesCpu::run_op_<&NesCpu::op_rla_, AddressingMode::ABSOLUTE>},
-    /* 0x30 */
-    {"BMI",
-     2,
-     2 /*+1 if branch succeeds, +2 if to a new page*/,
-     &NesCpu::run_op_<&NesCpu::op_bmi_>},
+    /* 0x30 */ {"BMI", 2, 2, &NesCpu::run_op_<&NesCpu::op_bmi_>},
     /* 0x31 */ {"AND", 2, 5, &NesCpu::run_op_<&NesCpu::op_and_, AddressingMode::INDIRECT_Y>},
     /* 0x32 */ {"*NOP", 1, 2, nullptr},
     /* 0x33 */ {"*RLA", 2, 8, &NesCpu::run_op_<&NesCpu::op_rla_, AddressingMode::INDIRECT_Y>},
@@ -89,11 +81,7 @@ const std::array<NesCpu::OpCode, 256u> NesCpu::OPCODES = {{
     /* 0x4D */ {"EOR", 3, 4, &NesCpu::run_op_<&NesCpu::op_eor_, AddressingMode::ABSOLUTE>},
     /* 0x4E */ {"LSR", 3, 6, &NesCpu::run_op_<&NesCpu::op_lsr_, AddressingMode::ABSOLUTE>},
     /* 0x4F */ {"*SRE", 3, 6, &NesCpu::run_op_<&NesCpu::op_sre_, AddressingMode::ABSOLUTE>},
-    /* 0x50 */
-    {"BVC",
-     2,
-     2 /*+1 if branch succeeds, +2 if to a new page*/,
-     &NesCpu::run_op_<&NesCpu::op_bvc_>},
+    /* 0x50 */ {"BVC", 2, 2, &NesCpu::run_op_<&NesCpu::op_bvc_>},
     /* 0x51 */ {"EOR", 2, 5, &NesCpu::run_op_<&NesCpu::op_eor_, AddressingMode::INDIRECT_Y>},
     /* 0x52 */ {"*NOP", 1, 2, nullptr},
     /* 0x53 */ {"*SRE", 2, 8, &NesCpu::run_op_<&NesCpu::op_sre_, AddressingMode::INDIRECT_Y>},
@@ -125,11 +113,7 @@ const std::array<NesCpu::OpCode, 256u> NesCpu::OPCODES = {{
     /* 0x6D */ {"ADC", 3, 4, &NesCpu::run_op_<&NesCpu::op_adc_, AddressingMode::ABSOLUTE>},
     /* 0x6E */ {"ROR", 3, 6, &NesCpu::run_op_<&NesCpu::op_ror_, AddressingMode::ABSOLUTE>},
     /* 0x6F */ {"*RRA", 3, 6, &NesCpu::run_op_<&NesCpu::op_rra_, AddressingMode::ABSOLUTE>},
-    /* 0x70 */
-    {"BVS",
-     2,
-     2 /*+1 if branch succeeds, +2 if to a new page*/,
-     &NesCpu::run_op_<&NesCpu::op_bvs_>},
+    /* 0x70 */ {"BVS", 2, 2, &NesCpu::run_op_<&NesCpu::op_bvs_>},
     /* 0x71 */ {"ADC", 2, 5, &NesCpu::run_op_<&NesCpu::op_adc_, AddressingMode::INDIRECT_Y>},
     /* 0x72 */ {"*NOP", 1, 2, nullptr},
     /* 0x73 */ {"*RRA", 2, 8, &NesCpu::run_op_<&NesCpu::op_rra_, AddressingMode::INDIRECT_Y>},
@@ -161,11 +145,7 @@ const std::array<NesCpu::OpCode, 256u> NesCpu::OPCODES = {{
     /* 0x8D */ {"STA", 3, 4, &NesCpu::run_op_<&NesCpu::op_sta_, AddressingMode::ABSOLUTE>},
     /* 0x8E */ {"STX", 3, 4, &NesCpu::run_op_<&NesCpu::op_stx_, AddressingMode::ABSOLUTE>},
     /* 0x8F */ {"*SAX", 3, 4, &NesCpu::run_op_<&NesCpu::op_sax_, AddressingMode::ABSOLUTE>},
-    /* 0x90 */
-    {"BCC",
-     2,
-     2 /*+1 if branch succeeds, +2 if to a new page*/,
-     &NesCpu::run_op_<&NesCpu::op_bcc_>},
+    /* 0x90 */ {"BCC", 2, 2, &NesCpu::run_op_<&NesCpu::op_bcc_>},
     /* 0x91 */ {"STA", 2, 6, &NesCpu::run_op_<&NesCpu::op_sta_, AddressingMode::INDIRECT_Y>},
     /* 0x92 */ {"*NOP", 1, 2, nullptr},
     /* 0x93 */ {"*AHX", 2, 6, &NesCpu::run_op_<&NesCpu::op_ahx_, AddressingMode::INDIRECT_Y>},
@@ -197,11 +177,7 @@ const std::array<NesCpu::OpCode, 256u> NesCpu::OPCODES = {{
     /* 0xAD */ {"LDA", 3, 4, &NesCpu::run_op_<&NesCpu::op_lda_, AddressingMode::ABSOLUTE>},
     /* 0xAE */ {"LDX", 3, 4, &NesCpu::run_op_<&NesCpu::op_ldx_, AddressingMode::ABSOLUTE>},
     /* 0xAF */ {"*LAX", 3, 4, &NesCpu::run_op_<&NesCpu::op_lax_, AddressingMode::ABSOLUTE>},
-    /* 0xB0 */
-    {"BCS",
-     2,
-     2 /*+1 if branch succeeds, +2 if to a new page*/,
-     &NesCpu::run_op_<&NesCpu::op_bcs_>},
+    /* 0xB0 */ {"BCS", 2, 2, &NesCpu::run_op_<&NesCpu::op_bcs_>},
     /* 0xB1 */ {"LDA", 2, 5, &NesCpu::run_op_<&NesCpu::op_lda_, AddressingMode::INDIRECT_Y>},
     /* 0xB2 */ {"*NOP", 1, 2, nullptr},
     /* 0xB3 */ {"*LAX", 2, 5, &NesCpu::run_op_<&NesCpu::op_lax_, AddressingMode::INDIRECT_Y>},
@@ -233,11 +209,7 @@ const std::array<NesCpu::OpCode, 256u> NesCpu::OPCODES = {{
     /* 0xCD */ {"CMP", 3, 4, &NesCpu::run_op_<&NesCpu::op_cmp_, AddressingMode::ABSOLUTE>},
     /* 0xCE */ {"DEC", 3, 6, &NesCpu::run_op_<&NesCpu::op_dec_, AddressingMode::ABSOLUTE>},
     /* 0xCF */ {"*DCP", 3, 6, &NesCpu::run_op_<&NesCpu::op_dcp_, AddressingMode::ABSOLUTE>},
-    /* 0xD0 */
-    {"BNE",
-     2,
-     2 /*+1 if branch succeeds, +2 if to a new page*/,
-     &NesCpu::run_op_<&NesCpu::op_bne_>},
+    /* 0xD0 */ {"BNE", 2, 2, &NesCpu::run_op_<&NesCpu::op_bne_>},
     /* 0xD1 */ {"CMP", 2, 5, &NesCpu::run_op_<&NesCpu::op_cmp_, AddressingMode::INDIRECT_Y>},
     /* 0xD2 */ {"*NOP", 1, 2, nullptr},
     /* 0xD3 */ {"*DCP", 2, 8, &NesCpu::run_op_<&NesCpu::op_dcp_, AddressingMode::INDIRECT_Y>},
@@ -269,11 +241,7 @@ const std::array<NesCpu::OpCode, 256u> NesCpu::OPCODES = {{
     /* 0xED */ {"SBC", 3, 4, &NesCpu::run_op_<&NesCpu::op_sbc_, AddressingMode::ABSOLUTE>},
     /* 0xEE */ {"INC", 3, 6, &NesCpu::run_op_<&NesCpu::op_inc_, AddressingMode::ABSOLUTE>},
     /* 0xEF */ {"*ISB", 3, 6, &NesCpu::run_op_<&NesCpu::op_isb_, AddressingMode::ABSOLUTE>},
-    /* 0xF0 */
-    {"BEQ",
-     2,
-     2 /*+1 if branch succeeds, +2 if to a new page*/,
-     &NesCpu::run_op_<&NesCpu::op_beq_>},
+    /* 0xF0 */ {"BEQ", 2, 2, &NesCpu::run_op_<&NesCpu::op_beq_>},
     /* 0xF1 */ {"SBC", 2, 5, &NesCpu::run_op_<&NesCpu::op_sbc_, AddressingMode::INDIRECT_Y>},
     /* 0xF2 */ {"*NOP", 1, 2, nullptr},
     /* 0xF3 */ {"*ISB", 2, 8, &NesCpu::run_op_<&NesCpu::op_isb_, AddressingMode::INDIRECT_Y>},
@@ -320,6 +288,9 @@ void NesCpu::reset()
 
 bool NesCpu::step()
 {
+    if (bus_->poll_nmi())
+        interrupt_(NMI_INTERRUPT);
+
     uint8_t code      = bus_->read8(pc_++);
     const OpCode& op  = OPCODES.at(code);
     uint16_t pc_state = pc_;
@@ -329,6 +300,8 @@ bool NesCpu::step()
 
     if (op.callback)
         op.callback(this);
+
+    bus_->step(op.cycles);
 
     if (pc_state == pc_)
         pc_ += (op.length - 1u);
@@ -346,8 +319,10 @@ void NesCpu::run_op_(NesCpu* cpu)
     else
     {
         const auto [addr, page_crossed] = cpu->get_operand_addr_<MODE>();
-        (void) page_crossed;
+
         (cpu->*OpFunc)(addr);
+        if (page_crossed)
+            cpu->bus_->step(1u);
     }
 }
 
@@ -403,6 +378,20 @@ std::tuple<uint16_t, bool> NesCpu::get_operand_addr_() const
         uint16_t deref      = deref_base + static_cast<uint16_t>(ry_);
         return {deref, page_cross_(deref, deref_base)};
     }
+}
+
+void NesCpu::interrupt_(const Interrupt& interrupt)
+{
+    stack_push16_(pc_);
+    NesCpuStatus status = status_;
+    status.b(0u);
+    status.u(1u);
+
+    stack_push8_(status.get());
+    status_.i(1u);
+
+    bus_->step(interrupt.cycles);
+    pc_ = bus_->read16(interrupt.vector);
 }
 
 void NesCpu::stack_push8_(uint8_t value)
@@ -556,8 +545,15 @@ void NesCpu::op_branch_(bool condition)
 {
     if (condition)
     {
-        int8_t jump = static_cast<int8_t>(bus_->read8(pc_));
-        pc_ += static_cast<uint16_t>(jump) + 1u;
+        bus_->step(1u);
+
+        int8_t jump        = static_cast<int8_t>(bus_->read8(pc_));
+        uint16_t jump_addr = pc_ + static_cast<uint16_t>(jump) + 1u;
+
+        if (((pc_ + 1u) & 0xFF00) != (jump_addr & 0xFF00))
+            bus_->step(1u);
+
+        pc_ = jump_addr;
     }
 }
 

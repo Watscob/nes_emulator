@@ -7,6 +7,7 @@
 #include <memory>
 #include <string_view>
 #include <tuple>
+#include <unordered_map>
 #include <vector>
 #include "nes_bus.hpp"
 #include "nes_registers.hpp"
@@ -36,9 +37,17 @@ class NesCpu
         std::function<void(NesCpu*)> callback;
     };
 
+    struct Interrupt
+    {
+        uint16_t vector;
+        uint8_t cycles;
+    };
+
     static constexpr uint16_t STACK_BASE = 0x0100;
     static constexpr uint8_t STACK_RESET = 0xFD;
     static const std::array<OpCode, 256u> OPCODES;
+
+    static constexpr Interrupt NMI_INTERRUPT{0xFFFA, 2u};
 
   public:
     explicit NesCpu();
@@ -64,6 +73,8 @@ class NesCpu
     bool page_cross_(uint16_t addr1, uint16_t addr2) const;
     template <AddressingMode MODE>
     std::tuple<uint16_t, bool> get_operand_addr_() const;
+
+    void interrupt_(const Interrupt& interrupt);
 
     void stack_push8_(uint8_t value);
     void stack_push16_(uint16_t value);

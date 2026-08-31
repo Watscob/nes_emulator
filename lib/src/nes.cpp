@@ -1,23 +1,22 @@
 #include "nes.hpp"
-#include <ctime>
-#include <iostream>
 #include <stdexcept>
 
 Nes::Nes(size_t screen_scale)
-    : screen_(DEFAULT_SCREEN_WIDTH * DEFAULT_SCREEN_HEIGHT, 0u)
-    , bus_(std::make_shared<NesBus>())
+    : bus_(std::make_shared<NesBus>())
     , cpu_(std::make_shared<NesCpu>())
+    , ppu_(std::make_shared<NesPpu>())
 {
-    std::srand(std::time({}));
-
     connect_components_();
+
+    size_t frame_width  = ppu_->get_frame_width();
+    size_t frame_height = ppu_->get_frame_height();
 
     if (!SDL_Init(SDL_INIT_VIDEO))
         throw std::runtime_error("Fail to init SDL.");
 
     sdl_window_.reset(SDL_CreateWindow("NES Emulator",
-                                       DEFAULT_SCREEN_WIDTH * screen_scale,
-                                       DEFAULT_SCREEN_HEIGHT * screen_scale,
+                                       frame_width * screen_scale,
+                                       frame_height * screen_scale,
                                        SDL_WINDOW_RESIZABLE));
 
     if (!sdl_window_)
@@ -35,10 +34,10 @@ Nes::Nes(size_t screen_scale)
         throw std::runtime_error("Failed to scale renderer.");
 
     sdl_texture_.reset(SDL_CreateTexture(sdl_renderer_.get(),
-                                         SDL_PIXELFORMAT_RGBA32,
+                                         SDL_PIXELFORMAT_RGBA8888,
                                          SDL_TEXTUREACCESS_STREAMING,
-                                         DEFAULT_SCREEN_WIDTH,
-                                         DEFAULT_SCREEN_HEIGHT));
+                                         frame_width,
+                                         frame_height));
 
     if (!sdl_texture_)
         throw std::runtime_error("Failed to create texture.");
@@ -53,12 +52,16 @@ Nes::~Nes()
 
 void Nes::load_rom(const std::string& path)
 {
-    bus_->connect_cartridge(std::make_shared<NesCartridge>(path));
+    std::shared_ptr<NesCartridge> cartridge = std::make_shared<NesCartridge>(path);
+    bus_->connect_cartridge(cartridge);
+    ppu_->connect_cartridge(cartridge);
 }
 
 void Nes::load_rom(const std::vector<uint8_t>& rom)
 {
-    bus_->connect_cartridge(std::make_shared<NesCartridge>(rom));
+    std::shared_ptr<NesCartridge> cartridge = std::make_shared<NesCartridge>(rom);
+    bus_->connect_cartridge(cartridge);
+    ppu_->connect_cartridge(cartridge);
 }
 
 void Nes::reset()
@@ -74,17 +77,16 @@ void Nes::run()
         if (!process_inputs_())
             return;
 
-        bus_->write8(0x00FE, std::rand() % 16u + 1u);
-
-        render_screen_();
-
         if (!cpu_->step())
             return;
+
+        render_screen_();
     }
 }
 
 void Nes::connect_components_()
 {
+    bus_->connect_ppu(ppu_);
     cpu_->connect_bus(bus_);
 }
 
@@ -98,9 +100,11 @@ bool Nes::process_inputs_()
         }
         else if (sdl_event_.type == SDL_EVENT_KEY_DOWN)
         {
+#if 0
             auto it = key_map_.find(sdl_event_.key.scancode);
             if (it != key_map_.end())
                 bus_->write8(0xFF, it->second);
+#endif
         }
     }
 
@@ -109,26 +113,14 @@ bool Nes::process_inputs_()
 
 void Nes::render_screen_()
 {
-    bool update = false;
-
-    for (uint16_t i = 0x0200; i < 0x0600; i++)
+    if (ppu_->poll_frame_ready())
     {
-        uint8_t color_idx = bus_->read8(i);
-        uint32_t rgb      = COLORS.at(color_idx % 16u);
+        const auto& frame = ppu_->get_frame();
 
-        if (screen_.at(i - 0x0200) != rgb)
-        {
-            screen_.at(i - 0x0200) = rgb;
-            update                 = true;
-        }
-    }
-
-    if (update)
-    {
         SDL_UpdateTexture(sdl_texture_.get(),
                           nullptr,
-                          screen_.data(),
-                          DEFAULT_SCREEN_WIDTH * sizeof(uint32_t));
+                          frame.data(),
+                          ppu_->get_frame_width() * sizeof(uint32_t));
 
         SDL_RenderClear(sdl_renderer_.get());
         SDL_RenderTexture(sdl_renderer_.get(), sdl_texture_.get(), nullptr, nullptr);

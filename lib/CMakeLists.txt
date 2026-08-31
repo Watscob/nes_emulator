@@ -6,6 +6,8 @@ add_library(
     ${CMAKE_CURRENT_SOURCE_DIR}/src/nes_bus.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/nes_cartridge.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/nes_cpu.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/nes_ppu_memory.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/nes_ppu.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/nes.cpp
 )
 

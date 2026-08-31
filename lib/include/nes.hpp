@@ -8,6 +8,7 @@
 #include <vector>
 #include "nes_bus.hpp"
 #include "nes_cpu.hpp"
+#include "nes_ppu.hpp"
 
 struct SDL_RendererDeleter
 {
@@ -43,26 +44,7 @@ using SDL_WindowPtr   = std::unique_ptr<SDL_Window, SDL_WindowDeleter>;
 class Nes
 {
   private:
-    static constexpr size_t DEFAULT_SCREEN_WIDTH  = 32u;
-    static constexpr size_t DEFAULT_SCREEN_HEIGHT = 32u;
-    static constexpr size_t DEFAULT_SCREEN_SCALE  = 10u;
-
-    static constexpr std::array<uint32_t, 16u> COLORS = {{0x00000000,
-                                                          0xFFFFFFFF,
-                                                          0x7F7F7FFF,
-                                                          0xFF0000FF,
-                                                          0x00FF00FF,
-                                                          0x0000FFFF,
-                                                          0xFF00FFFF,
-                                                          0xFFFF00FF,
-                                                          0x00FFFFFF,
-                                                          0x7F7F7FFF,
-                                                          0xFF0000FF,
-                                                          0x00FF00FF,
-                                                          0x0000FFFF,
-                                                          0xFF00FFFF,
-                                                          0xFFFF00FF,
-                                                          0x00FFFFFF}};
+    static constexpr size_t DEFAULT_SCREEN_SCALE = 5u;
 
     std::unordered_map<SDL_Scancode, uint8_t> key_map_ = {
         {SDL_SCANCODE_W, 0x77},
@@ -81,9 +63,9 @@ class Nes
     void run();
 
   private:
-    std::vector<uint32_t> screen_;
     std::shared_ptr<NesBus> bus_;
     std::shared_ptr<NesCpu> cpu_;
+    std::shared_ptr<NesPpu> ppu_;
     SDL_Event sdl_event_;
     SDL_RendererPtr sdl_renderer_;
     SDL_WindowPtr sdl_window_;
