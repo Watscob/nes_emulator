@@ -1,13 +1,22 @@
 #ifndef NES_BUS_HPP
 #define NES_BUS_HPP
 
+#include <array>
 #include <cstdint>
 #include <memory>
-#include <vector>
 #include "nes_cartridge.hpp"
 
 class NesBus
 {
+  private:
+    static constexpr size_t RAM_SIZE            = 2048u;
+    static constexpr uint16_t RAM_MIRRORS_START = 0x0000;
+    static constexpr uint16_t RAM_MIRRORS_END   = 0x1FFF;
+    static constexpr uint16_t PRG_ROM_START     = 0x8000;
+    static constexpr uint16_t PRG_ROM_END       = 0xFFFF;
+
+    static constexpr uint16_t RAM_MIRRORS_MASK = 0x7FF;
+
   public:
     explicit NesBus();
     ~NesBus() = default;
@@ -22,13 +31,7 @@ class NesBus
     void write16(uint16_t addr, uint16_t value);
 
   private:
-    static constexpr uint16_t RAM_SIZE      = 0x2000;
-    static constexpr uint16_t RAM_START     = 0x0000;
-    static constexpr uint16_t RAM_END       = 0x1FFF;
-    static constexpr uint16_t PRG_ROM_START = 0x8000;
-    static constexpr uint16_t PRG_ROM_END   = 0xFFFF;
-
-    std::vector<uint8_t> ram_;
+    std::array<uint8_t, RAM_SIZE> ram_;
     std::shared_ptr<NesCartridge> cartridge_;
 };
 

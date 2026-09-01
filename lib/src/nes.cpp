@@ -69,19 +69,19 @@ void Nes::run()
 {
     while (true)
     {
-        if (!process_inputs())
+        if (!process_inputs_())
             return;
 
         bus_->write8(0x00FE, std::rand() % 16u + 1u);
 
-        render_screen();
+        render_screen_();
 
         if (!cpu_->step())
             return;
     }
 }
 
-bool Nes::process_inputs()
+bool Nes::process_inputs_()
 {
     while (SDL_PollEvent(&sdl_event_))
     {
@@ -100,7 +100,7 @@ bool Nes::process_inputs()
     return true;
 }
 
-void Nes::render_screen()
+void Nes::render_screen_()
 {
     bool update = false;
 

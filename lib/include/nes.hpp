@@ -42,15 +42,6 @@ using SDL_WindowPtr   = std::unique_ptr<SDL_Window, SDL_WindowDeleter>;
 
 class Nes
 {
-  public:
-    explicit Nes(size_t screen_scale = DEFAULT_SCREEN_SCALE);
-    ~Nes();
-
-    void load_rom(const std::string& path);
-    void load_rom(const std::vector<uint8_t>& rom);
-    void reset();
-    void run();
-
   private:
     static constexpr size_t DEFAULT_SCREEN_WIDTH  = 32u;
     static constexpr size_t DEFAULT_SCREEN_HEIGHT = 32u;
@@ -80,6 +71,16 @@ class Nes
         {SDL_SCANCODE_D, 0x64},
     };
 
+  public:
+    explicit Nes(size_t screen_scale = DEFAULT_SCREEN_SCALE);
+    ~Nes();
+
+    void load_rom(const std::string& path);
+    void load_rom(const std::vector<uint8_t>& rom);
+    void reset();
+    void run();
+
+  private:
     std::vector<uint32_t> screen_;
     std::shared_ptr<NesBus> bus_;
     std::shared_ptr<NesCpu> cpu_;
@@ -88,8 +89,8 @@ class Nes
     SDL_WindowPtr sdl_window_;
     SDL_TexturePtr sdl_texture_;
 
-    bool process_inputs();
-    void render_screen();
+    bool process_inputs_();
+    void render_screen_();
 };
 
 #endif /* NES_HPP */

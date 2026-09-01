@@ -12,12 +12,12 @@ NesCartridge::NesCartridge(const std::string& path)
     std::vector<uint8_t> rom((std::istreambuf_iterator<char>(file)),
                              std::istreambuf_iterator<char>());
 
-    init(rom);
+    init_(rom);
 }
 
 NesCartridge::NesCartridge(const std::vector<uint8_t>& raw)
 {
-    init(raw);
+    init_(raw);
 }
 
 uint8_t NesCartridge::read_prg(uint16_t addr) const
@@ -29,12 +29,15 @@ uint8_t NesCartridge::read_prg(uint16_t addr) const
 
 uint8_t NesCartridge::read_chr(uint16_t addr) const
 {
-    // TODO
-    (void) addr;
-    return 0u;
+    return chr_rom_.at(addr);
 }
 
-void NesCartridge::init(const std::vector<uint8_t>& raw)
+const Mirroring& NesCartridge::get_mirroring() const
+{
+    return screen_mirroring_;
+}
+
+void NesCartridge::init_(const std::vector<uint8_t>& raw)
 {
     if (!std::equal(NES_TAG.begin(), NES_TAG.end(), raw.begin()))
         throw std::runtime_error("Invalid NES tag.");
