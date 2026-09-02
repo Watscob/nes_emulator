@@ -89,6 +89,7 @@ class Nes
     SDL_WindowPtr sdl_window_;
     SDL_TexturePtr sdl_texture_;
 
+    void connect_components_();
     bool process_inputs_();
     void render_screen_();
 };

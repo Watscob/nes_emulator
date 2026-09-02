@@ -8,7 +8,7 @@ NesBus::NesBus()
 {
 }
 
-void NesBus::set_cartridge(const std::shared_ptr<NesCartridge>& cartridge)
+void NesBus::connect_cartridge(const std::shared_ptr<NesCartridge>& cartridge)
 {
     cartridge_ = cartridge;
 }

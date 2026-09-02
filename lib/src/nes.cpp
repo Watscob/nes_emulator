@@ -6,9 +6,11 @@
 Nes::Nes(size_t screen_scale)
     : screen_(DEFAULT_SCREEN_WIDTH * DEFAULT_SCREEN_HEIGHT, 0u)
     , bus_(std::make_shared<NesBus>())
-    , cpu_(std::make_shared<NesCpu>(bus_))
+    , cpu_(std::make_shared<NesCpu>())
 {
     std::srand(std::time({}));
+
+    connect_components_();
 
     if (!SDL_Init(SDL_INIT_VIDEO))
         throw std::runtime_error("Fail to init SDL.");
@@ -51,12 +53,12 @@ Nes::~Nes()
 
 void Nes::load_rom(const std::string& path)
 {
-    bus_->set_cartridge(std::make_shared<NesCartridge>(path));
+    bus_->connect_cartridge(std::make_shared<NesCartridge>(path));
 }
 
 void Nes::load_rom(const std::vector<uint8_t>& rom)
 {
-    bus_->set_cartridge(std::make_shared<NesCartridge>(rom));
+    bus_->connect_cartridge(std::make_shared<NesCartridge>(rom));
 }
 
 void Nes::reset()
@@ -79,6 +81,11 @@ void Nes::run()
         if (!cpu_->step())
             return;
     }
+}
+
+void Nes::connect_components_()
+{
+    cpu_->connect_bus(bus_);
 }
 
 bool Nes::process_inputs_()

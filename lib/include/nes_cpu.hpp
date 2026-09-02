@@ -40,9 +40,10 @@ class NesCpu
     static const std::array<OpCode, 256u> OPCODES;
 
   public:
-    NesCpu() = delete;
-    explicit NesCpu(const std::shared_ptr<NesBus>& bus);
+    explicit NesCpu();
     ~NesCpu() = default;
+
+    void connect_bus(const std::shared_ptr<NesBus>& bus);
 
     void reset();
     bool step();

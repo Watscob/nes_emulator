@@ -21,7 +21,8 @@ class NesBus
     explicit NesBus();
     ~NesBus() = default;
 
-    void set_cartridge(const std::shared_ptr<NesCartridge>& cartridge);
+    void connect_cartridge(const std::shared_ptr<NesCartridge>& cartridge);
+
     void reset();
 
     uint8_t read8(uint16_t addr) const;

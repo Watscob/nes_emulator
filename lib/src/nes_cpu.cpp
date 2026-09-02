@@ -414,15 +414,20 @@ const std::array<NesCpu::OpCode, 256u> NesCpu::OPCODES = {{
     /* 0xFF */ {"*ISB", 3, 7, [](NesCpu* cpu) { cpu->op_isb_(cpu->get_absolute_x_addr_()); }},
 }};
 
-NesCpu::NesCpu(const std::shared_ptr<NesBus>& bus)
+NesCpu::NesCpu()
     : ra_(0u)
     , rx_(0u)
     , ry_(0u)
     , sp_(STACK_RESET)
     , pc_(0x8000)
     , status_()
-    , bus_(bus)
+    , bus_(nullptr)
 {
+}
+
+void NesCpu::connect_bus(const std::shared_ptr<NesBus>& bus)
+{
+    bus_ = bus;
 }
 
 void NesCpu::reset()
