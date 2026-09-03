@@ -6,6 +6,7 @@
 #include <functional>
 #include <memory>
 #include <string_view>
+#include <tuple>
 #include <vector>
 #include "nes_bus.hpp"
 #include "nes_registers.hpp"
@@ -57,20 +58,17 @@ class NesCpu
     NesCpuStatus status_;
     std::shared_ptr<NesBus> bus_;
 
+    template <auto OpFunc, AddressingMode MODE = AddressingMode::NONE>
+    static void run_op_(NesCpu* cpu);
+
+    bool page_cross_(uint16_t addr1, uint16_t addr2) const;
+    template <AddressingMode MODE>
+    std::tuple<uint16_t, bool> get_operand_addr_() const;
+
     void stack_push8_(uint8_t value);
     void stack_push16_(uint16_t value);
     uint8_t stack_pop8_();
     uint16_t stack_pop16_();
-
-    uint16_t get_immediate_addr_() const;
-    uint16_t get_zero_page_addr_() const;
-    uint16_t get_zero_page_x_addr_() const;
-    uint16_t get_zero_page_y_addr_() const;
-    uint16_t get_absolute_addr_() const;
-    uint16_t get_absolute_x_addr_() const;
-    uint16_t get_absolute_y_addr_() const;
-    uint16_t get_indirect_x_addr_() const;
-    uint16_t get_indirect_y_addr_() const;
 
     void add_to_ra_(uint8_t value);
 
@@ -83,9 +81,23 @@ class NesCpu
     void op_asl_accumulator_();
     void op_asl_(uint16_t addr);
     void op_axs_(uint16_t addr);
+    void op_bcc_();
+    void op_bcs_();
+    void op_beq_();
     void op_bit_(uint16_t addr);
+    void op_bmi_();
+    void op_bne_();
+    void op_blp_();
     void op_branch_(bool condition);
-    void op_cmp_(uint16_t addr, uint8_t compare_with);
+    void op_bvc_();
+    void op_bvs_();
+    void op_clc_();
+    void op_cld_();
+    void op_cli_();
+    void op_clv_();
+    void op_cmp_(uint16_t addr);
+    void op_cpx_(uint16_t addr);
+    void op_cpy_(uint16_t addr);
     void op_dcp_(uint16_t addr);
     void op_dec_(uint16_t addr);
     void op_dex_();
@@ -107,6 +119,7 @@ class NesCpu
     void op_lsr_(uint16_t addr);
     void op_lxa_(uint16_t addr);
     void op_ora_(uint16_t addr);
+    void op_pha_();
     void op_php_();
     void op_pla_();
     void op_plp_();
@@ -120,6 +133,9 @@ class NesCpu
     void op_rts_();
     void op_sax_(uint16_t addr);
     void op_sbc_(uint16_t addr);
+    void op_sec_();
+    void op_sed_();
+    void op_sei_();
     void op_shx_(uint16_t addr);
     void op_shy_(uint16_t addr);
     void op_slo_(uint16_t addr);
