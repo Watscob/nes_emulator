@@ -1,4 +1,5 @@
 #include "nes_bus.hpp"
+#include <format>
 #include <stdexcept>
 
 NesBus::NesBus()
@@ -48,7 +49,7 @@ uint8_t NesBus::read8(uint16_t addr) const
     case APU_REG_START ... APU_REG_END:
         return 0u;
     case PPU_OAM_DMA:
-        throw std::runtime_error("Attempt to read PPU OAM DMA.");
+        throw std::runtime_error(std::format("Attempt to read PPU OAM DMA (0x{:#04x}).", addr));
         break;
     case APU_REG_STATUS_CTRL:
         return 0u;
@@ -95,7 +96,7 @@ void NesBus::write8(uint16_t addr, uint8_t value)
     case JOYPAD_2:
         break;
     case PRG_ROM_START ... PRG_ROM_END:
-        throw std::runtime_error("Attempt to write to PRG ROM space.");
+        throw std::runtime_error(std::format("Attempt to write to PRG ROM space ({:#04x}).", addr));
         break;
     default:
         /* Ignoring memory write access */

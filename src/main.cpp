@@ -1,3 +1,4 @@
+#include <format>
 #include <fstream>
 #include <iostream>
 #include <nes.hpp>
@@ -9,7 +10,7 @@ int main(int argc, char* argv[])
 
     if (argc < 2)
     {
-        std::cout << "Usage: " << argv[0] << " <rom_file>" << std::endl;
+        std::cout << std::format("Usage: {} <rom_file>", argv[0]) << std::endl;
         return 1;
     }
 

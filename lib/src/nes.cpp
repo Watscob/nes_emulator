@@ -1,4 +1,5 @@
 #include "nes.hpp"
+#include <format>
 #include <stdexcept>
 
 Nes::Nes(size_t screen_scale)
@@ -13,7 +14,7 @@ Nes::Nes(size_t screen_scale)
     size_t frame_height = ppu_->get_frame_height();
 
     if (!SDL_Init(SDL_INIT_VIDEO))
-        throw std::runtime_error("Fail to init SDL.");
+        throw std::runtime_error(std::format("Fail to init SDL ({}).", SDL_GetError()));
 
     sdl_window_.reset(SDL_CreateWindow("NES Emulator",
                                        frame_width * screen_scale,
@@ -21,7 +22,7 @@ Nes::Nes(size_t screen_scale)
                                        SDL_WINDOW_RESIZABLE));
 
     if (!sdl_window_)
-        throw std::runtime_error("Fail to create a window.");
+        throw std::runtime_error(std::format("Fail to create a window ({}).", SDL_GetError()));
 
     SDL_PropertiesID props = SDL_CreateProperties();
     SDL_SetPointerProperty(props, SDL_PROP_RENDERER_CREATE_WINDOW_POINTER, sdl_window_.get());
@@ -29,10 +30,10 @@ Nes::Nes(size_t screen_scale)
     sdl_renderer_.reset(SDL_CreateRendererWithProperties(props));
 
     if (!sdl_renderer_)
-        throw std::runtime_error("Failed to create a render.");
+        throw std::runtime_error(std::format("Failed to create a render ({}).", SDL_GetError()));
 
     if (!SDL_SetRenderScale(sdl_renderer_.get(), screen_scale, screen_scale))
-        throw std::runtime_error("Failed to scale renderer.");
+        throw std::runtime_error(std::format("Failed to scale renderer ({}).", SDL_GetError()));
 
     sdl_texture_.reset(SDL_CreateTexture(sdl_renderer_.get(),
                                          SDL_PIXELFORMAT_RGBA8888,
@@ -41,7 +42,7 @@ Nes::Nes(size_t screen_scale)
                                          frame_height));
 
     if (!sdl_texture_)
-        throw std::runtime_error("Failed to create texture.");
+        throw std::runtime_error(std::format("Failed to create texture ({}).", SDL_GetError()));
 
     SDL_SetTextureScaleMode(sdl_texture_.get(), SDL_SCALEMODE_NEAREST);
 }

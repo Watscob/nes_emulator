@@ -1,4 +1,5 @@
 #include "nes_cartridge.hpp"
+#include <format>
 #include <fstream>
 #include <stdexcept>
 
@@ -7,7 +8,7 @@ NesCartridge::NesCartridge(const std::string& path)
     std::ifstream file(path, std::ios::in | std::ios::binary);
 
     if (!file || !file.is_open())
-        throw std::runtime_error("Cannot open file " + path + ".");
+        throw std::runtime_error(std::format("Cannot open file '{}'.", path));
 
     std::vector<uint8_t> rom((std::istreambuf_iterator<char>(file)),
                              std::istreambuf_iterator<char>());
@@ -44,7 +45,7 @@ void NesCartridge::init_(const std::vector<uint8_t>& raw)
 
     mapper_ = (raw.at(7u) & 0xF0) | (raw.at(6u) >> 4u);
     if (mapper_ != 0u)
-        throw std::runtime_error("Only mapper 0 is supported.");
+        throw std::runtime_error(std::format("Mapper {} is not supported.", mapper_));
 
     uint8_t ines_version = (raw.at(7u) >> 2u) & 0x3;
     if (ines_version != 0u)
@@ -75,7 +76,10 @@ void NesCartridge::init_(const std::vector<uint8_t>& raw)
     uint16_t total_size = HEADER_SIZE + prg_size + chr_size;
 
     if (total_size > raw.size())
-        throw std::runtime_error("Total size of the ROM does not match header.");
+        throw std::runtime_error(
+            std::format("Total size of the ROM does not match header ({} != {}).",
+                        total_size,
+                        raw.size()));
 
     prg_rom_.assign(raw.begin() + HEADER_SIZE, raw.begin() + HEADER_SIZE + prg_size);
 
