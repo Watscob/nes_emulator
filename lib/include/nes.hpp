@@ -8,6 +8,7 @@
 #include <vector>
 #include "nes_bus.hpp"
 #include "nes_cpu.hpp"
+#include "nes_joypad.hpp"
 #include "nes_ppu.hpp"
 
 struct SDL_RendererDeleter
@@ -46,12 +47,15 @@ class Nes
   private:
     static constexpr size_t DEFAULT_SCREEN_SCALE = 5u;
 
-    std::unordered_map<SDL_Scancode, uint8_t> key_map_ = {
-        {SDL_SCANCODE_W, 0x77},
-        {SDL_SCANCODE_S, 0x73},
-        {SDL_SCANCODE_A, 0x61},
-        {SDL_SCANCODE_D, 0x64},
-    };
+    std::unordered_map<SDL_Scancode, NesJoypad::JoypadButton> key_map_ = {
+        {SDL_SCANCODE_RIGHT, NesJoypad::JoypadButton::RIGHT},
+        {SDL_SCANCODE_LEFT, NesJoypad::JoypadButton::LEFT},
+        {SDL_SCANCODE_DOWN, NesJoypad::JoypadButton::DOWN},
+        {SDL_SCANCODE_UP, NesJoypad::JoypadButton::UP},
+        {SDL_SCANCODE_RETURN, NesJoypad::JoypadButton::START},
+        {SDL_SCANCODE_SPACE, NesJoypad::JoypadButton::SELECT},
+        {SDL_SCANCODE_S, NesJoypad::JoypadButton::B},
+        {SDL_SCANCODE_A, NesJoypad::JoypadButton::A}};
 
   public:
     explicit Nes(size_t screen_scale = DEFAULT_SCREEN_SCALE);
@@ -65,6 +69,7 @@ class Nes
   private:
     std::shared_ptr<NesBus> bus_;
     std::shared_ptr<NesCpu> cpu_;
+    std::shared_ptr<NesJoypad> joypad_1_;
     std::shared_ptr<NesPpu> ppu_;
     SDL_Event sdl_event_;
     SDL_RendererPtr sdl_renderer_;

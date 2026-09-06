@@ -4,6 +4,7 @@
 Nes::Nes(size_t screen_scale)
     : bus_(std::make_shared<NesBus>())
     , cpu_(std::make_shared<NesCpu>())
+    , joypad_1_(std::make_shared<NesJoypad>())
     , ppu_(std::make_shared<NesPpu>())
 {
     connect_components_();
@@ -68,6 +69,8 @@ void Nes::reset()
 {
     bus_->reset();
     cpu_->reset();
+    joypad_1_->reset();
+    ppu_->reset();
 }
 
 void Nes::run()
@@ -87,6 +90,7 @@ void Nes::run()
 void Nes::connect_components_()
 {
     bus_->connect_ppu(ppu_);
+    bus_->connect_joypad_1(joypad_1_);
     cpu_->connect_bus(bus_);
 }
 
@@ -98,13 +102,11 @@ bool Nes::process_inputs_()
         {
             return false;
         }
-        else if (sdl_event_.type == SDL_EVENT_KEY_DOWN)
+        else
         {
-#if 0
             auto it = key_map_.find(sdl_event_.key.scancode);
             if (it != key_map_.end())
-                bus_->write8(0xFF, it->second);
-#endif
+                joypad_1_->set_button_pressed(it->second, sdl_event_.type == SDL_EVENT_KEY_DOWN);
         }
     }
 
